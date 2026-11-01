@@ -1,0 +1,10 @@
+home 200 1929955
+author 200 1151981
+author_limit 200 1739088
+author_p2 200 1152824
+quron 200 997473
+tafsir 200 989242
+search 200 1958916
+kitoblar 200 3850401
+sitemap 200 0
+sitemap2 200 0
