@@ -29,17 +29,21 @@ AUTHOR_PAGE = BASE + "/shayx-kitoblari-uz"
 UA = "Mozilla/5.0 (compatible; kitob-javoni/1.0; +https://github.com/asliddinsoliddinovwork-cloud/Asliddin9903-3d-book-universe)"
 PAUSE = 0.7
 
-# Label (as printed on the site, several languages/scripts) -> field name
+# Labels as printed on the site (Uzbek Cyrillic/Latin, Russian, Karakalpak) -> field name
 LABELS = {
-    "author": ["муаллиф", "muallif", "автор", "avtor"],
-    "translator": ["таржимон", "tarjimon", "переводчик", "аудармашы"],
-    "publisher": ["нашриёт", "nashriyot", "издательство", "баспа"],
-    "year": ["сана", "sana", "год", "йил", "yil", "нашр йили", "жыл"],
-    "pages": ["ҳажми", "hajmi", "объем", "объём", "көлеми", "ҳәжми", "betlar"],
-    "isbn": ["isbn"],
-    "format": ["ўлчами", "o‘lchami", "oʻlchami", "o'lchami", "olchami", "формат", "өлшеми", "ólshemi"],
-    "binding": ["муқова", "muqova", "обложка", "переплет", "переплёт", "мұқаба", "муқаба"],
+    "author": ["Муаллиф", "Muallif", "Автор", "Avtor"],
+    "translator": ["Таржимон", "Tarjimon", "Переводчик", "Аудармашы"],
+    "publisher": ["Нашриёт", "Nashriyot", "Издательство", "Баспа"],
+    "year": ["Сана", "Sana", "Год издания", "Год", "Нашр йили"],
+    "pages": ["Ҳажми", "Hajmi", "Объём", "Объем", "Количество страниц", "Көлеми"],
+    "isbn": ["ISBN"],
+    "format": ["Ўлчами", "O‘lchami", "Oʻlchami", "O'lchami", "Формат", "Өлшеми"],
+    "binding": ["Муқоваси", "Муқова", "Muqovasi", "Muqova", "Обложка", "Переплёт", "Переплет"],
 }
+STOPS = ["Ўзбекистон Республикаси", "Өзбекстан Республикасы", "O‘zbekiston Respublikasi", "Oʻzbekiston Respublikasi",
+         "Республики Узбекистан", "Электрон нашри", "Stock:", "Код:", "Вазни:"]
+_LABEL_RX = re.compile(r"(?<!\w)(" + "|".join(sorted({re.escape(x) for v in LABELS.values() for x in v}, key=len, reverse=True))
+                       + r")\s*:?\s*(?=\S)")
 
 
 def clean(text: str) -> str:
@@ -96,23 +100,38 @@ def meta(page_html: str, prop: str) -> str | None:
     return html.unescape(m.group(1)) if m else None
 
 
-def parse_details(block: str) -> dict:
-    """'<b>Муаллиф:</b> X<br>' pairs -> {label: value}; label kept verbatim (trimmed)."""
-    pairs = {}
-    for m in re.finditer(r"<b>\s*([^<:]{2,40}):\s*</b>(.*?)(?=<br|</p>|<b>)", block, re.S):
-        label, value = clean(m.group(1)), clean(m.group(2))
-        if value:
-            pairs[label] = value
-    return pairs
-
-
-def map_fields(details: dict) -> dict:
+def parse_details(text: str) -> dict:
+    """'Муаллиф: X Нашриёт: Y Сана: Z …' (plain text) -> {field: value}. First occurrence wins."""
+    hits = list(_LABEL_RX.finditer(text))
     out = {}
-    for label, value in details.items():
-        key = label.lower().replace(" ", " ").strip()
-        for field, names in LABELS.items():
-            if key in names and field not in out:
-                out[field] = value
+    for i, m in enumerate(hits):
+        end = hits[i + 1].start() if i + 1 < len(hits) else min(len(text), m.end() + 160)
+        value = text[m.end():end]
+        for stop in STOPS:
+            value = value.split(stop)[0]
+        value = value.replace("«Hilol Nashr»", "").strip(" :;,.\u00a0")
+        field = next(f for f, names in LABELS.items() if m.group(1) in names)
+        if value and field not in out and len(value) < 200:
+            out[field] = value
+    return out
+
+
+def parse_stats(page_html: str) -> dict:
+    """OpenCart 'product-stats' list: ISBN, weight and (sometimes) dimensions, as printed."""
+    i = page_html.find('class="product-stats"')
+    if i < 0:
+        return {}
+    t = clean(page_html[i:i + 1500])
+    out = {}
+    m = re.search(r"Вазни:\s*([\d.,]+)\s*кг", t)
+    if m:
+        out["weight_kg"] = float(m.group(1).replace(",", "."))
+    m = re.search(r"Dimensions:\s*([\d.]+)см x ([\d.]+)см x ([\d.]+)см", t)
+    if m:
+        out["dimensions_cm"] = [float(x) for x in m.groups()]
+    m = re.search(r"ISBN:\s*([\d-]{10,17})", t)
+    if m:
+        out["isbn_stats"] = m.group(1)
     return out
 
 
@@ -136,16 +155,21 @@ def parse_product(page_html: str, url: str) -> dict:
         title = clean(h1.group(1))
     i = page_html.find('<div class="block-content expand-content">')
     block = page_html[i:i + 8000] if i >= 0 else ""
-    details = parse_details(block)
-    intro = clean(block.split("<b>", 1)[0])[:600] if block else ""
+    j = block.find('class="product-stats"')
+    if j > 0:
+        block = block[:j]
+    text = clean(block)
+    details = parse_details(text)
+    first = _LABEL_RX.search(text)
+    intro = (text[:first.start()] if first else text)[:600].strip()
     ebook = re.search(r'href="(https://e-hilolnashr\.uz/[^"]+)"', block)
     og_image = meta(page_html, "og:image")
     return {
         "url": url,
         "title": title,
         "description": intro or (meta(page_html, "og:description") or "")[:600],
-        "details": details,
-        **map_fields(details),
+        **details,
+        **parse_stats(page_html),
         "ebook_url": ebook.group(1) if ebook else None,
         "cover_remote": pick_cover(page_html, og_image),
     }

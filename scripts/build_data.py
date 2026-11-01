@@ -1,145 +1,202 @@
-"""Build data/books.json from the raw Wikipedia list + optional Open Library enrichment.
+"""Build data/books.json from data/raw/hilol_products.json (written by scrape_hilol.py).
 
 Usage:  python scripts/build_data.py
-Inputs: data/raw/bestsellers_wikipedia.tsv, data/enrichment.json (optional)
-Output: data/books.json
+
+Everything published comes from the publisher's page. Derived values are labelled:
+  * size_method "format": trimmed page size computed from the printed paper format
+    (e.g. "60×90 1/16" -> sheet 600×900 mm folded 4 times = 150×225 mm, minus trim 10/5 mm = 215×145 mm;
+    this reproduces the GOST 5773 sizes, e.g. 84×108/32 -> 200×130, 70×100/16 -> 240×170).
+  * size_method "title_cm": size printed in the product title, e.g. "17x25 см".
+  * thickness_method "pages": pages × 0.05 mm (0.1 mm per leaf) + cover boards (hard 4, soft 1.5, unknown 3 mm).
+  * lang / series / kind: classified from the title, URL and details by the rules below.
 """
 from __future__ import annotations
 
-import csv
 import json
+import math
 import re
-import unicodedata
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-RAW = ROOT / "data" / "raw" / "bestsellers_wikipedia.tsv"
-ENRICH = ROOT / "data" / "enrichment.json"
+RAW = ROOT / "data" / "raw" / "hilol_products.json"
 OUT = ROOT / "data" / "books.json"
-SOURCE_URL = "https://en.wikipedia.org/wiki/List_of_best-selling_books"
 
-# Language labels (uz / en). Grouping by original language = "xalq" proxy.
 LANGS = {
-    "English": "Ingliz", "French": "Fransuz", "Portuguese": "Portugal", "Chinese": "Xitoy",
-    "Norwegian": "Norveg", "Spanish": "Ispan", "German": "Nemis", "Italian": "Italyan",
-    "Russian": "Rus", "Dutch": "Niderland", "Swedish": "Shved", "Japanese": "Yapon",
-    "Hebrew": "Ivrit", "Czech": "Chex", "Yiddish": "Idish", "Gujarati": "Gujarot",
+    "uz-cyrl": {"uz": "O‘zbek (kirill)", "en": "Uzbek (Cyrillic)"},
+    "uz-latn": {"uz": "O‘zbek (lotin)", "en": "Uzbek (Latin)"},
+    "kaa": {"uz": "Qoraqalpoq", "en": "Karakalpak"},
+    "ru": {"uz": "Rus", "en": "Russian"},
 }
-
-# Genre categories: our own grouping of the free-text genre on Wikipedia (an interpretation).
-# Order = priority when picking the primary category.
-GENRES = [
-    ("children", "Bolalar adabiyoti", "Children's", ["children", "picture book"]),
-    ("young_adult", "O‘smirlar adabiyoti", "Young adult", ["young adult"]),
-    ("scifi", "Ilmiy fantastika", "Science fiction", ["science fiction", "dystop"]),
-    ("fantasy", "Fantastika (fentezi)", "Fantasy", ["fantasy", "magic realism"]),
-    ("mystery", "Detektiv va triller", "Mystery & thriller", ["mystery", "thriller", "crime"]),
-    ("horror", "Qo‘rqinchli va gotika", "Horror & gothic", ["horror", "gothic"]),
-    ("romance", "Romantika", "Romance", ["romance", "romantic", "sentimental", "erotica"]),
-    ("historical", "Tarixiy", "Historical", ["historical", "war"]),
-    ("memoir", "Memuar va biografiya", "Memoir & biography", ["memoir", "autobiograph", "biograph"]),
-    ("selfhelp", "Shaxsiy rivojlanish", "Self-help", ["self-help", "motivational"]),
-    ("spiritual", "Diniy-ma’naviy", "Spiritual & religious", ["bible", "spiritual", "recovery"]),
-    ("nonfiction", "Ilmiy-ommabop va hujjatli", "Non-fiction",
-     ["popular science", "nonfiction", "non-fiction", "history", "social science", "manual", "guide", "anthropology", "essay"]),
-    ("fiction", "Badiiy adabiyot", "Fiction",
-     ["novel", "fiction", "coming-of-age", "bildungsroman", "family saga", "adventure", "satir", "literature", "travel"]),
+# (key, uz, en, regex on title; group 1 = volume number if any)
+SERIES = [
+    ("hadis-va-hayot", "Hadis va Hayot", "Hadith and Life", r"(?:Ҳадис ва Ҳаёт|Hadis va Hayot|Хадисы и Жизнь|Ҳәдис ҳәм Турмыс)\s*(\d+)?"),
+    ("tafsiri-hilol", "Tafsiri Hilol", "Tafsiri Hilol", r"(?:Тафсири Ҳилол|Tafsiri Hilol|Тафсир Хилал)\s*(\d+)?"),
+    ("oltin-silsila", "Oltin silsila", "The Golden Chain", r"(?:Олтин силсила|Oltin silsila).*?(\d+)-"),
+    ("mominning", "“Mo‘minning…” turkumi", "“The Believer's…” series", r"(?:Мўминнинг|Mo‘minning|Мөминниң)"),
 ]
-UNSPECIFIED = ("unspecified", "Janr ko‘rsatilmagan", "Genre not given")
+
+CYR2LAT = {
+    "а": "a", "б": "b", "в": "v", "г": "g", "д": "d", "ж": "j", "з": "z", "и": "i", "й": "y", "к": "k",
+    "л": "l", "м": "m", "н": "n", "о": "o", "п": "p", "р": "r", "с": "s", "т": "t", "у": "u", "ф": "f",
+    "х": "x", "ц": "ts", "ч": "ch", "ш": "sh", "щ": "sh", "ъ": "’", "ы": "i", "ь": "", "э": "e", "ю": "yu",
+    "я": "ya", "ё": "yo", "ў": "o‘", "қ": "q", "ғ": "g‘", "ҳ": "h",
+}
+VOWELS = set("аеёиоуўэюяaeiou")
 
 
-def slugify(text: str) -> str:
-    text = unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode()
-    return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")[:60]
+def to_latin(text: str) -> str:
+    """Uzbek Cyrillic -> Uzbek Latin (1995 alphabet). 'е' is 'ye' at word start / after a vowel."""
+    out = []
+    for i, ch in enumerate(text):
+        low = ch.lower()
+        if low == "е":
+            prev = text[i - 1].lower() if i else " "
+            lat = "ye" if (not prev.isalpha() or prev in VOWELS or prev == "ъ") else "e"
+        elif low in CYR2LAT:
+            lat = CYR2LAT[low]
+        else:
+            out.append(ch)
+            continue
+        if ch != low and lat:
+            nxt = text[i + 1] if i + 1 < len(text) else " "
+            lat = lat.upper() if (nxt.isupper() and len(lat) > 1) else lat[0].upper() + lat[1:]
+        out.append(lat)
+    return "".join(out)
 
 
-def split_title(raw: str) -> tuple[str, str | None]:
-    """'The Little Prince (Le Petit Prince)' -> ('The Little Prince', 'Le Petit Prince')."""
-    m = re.match(r"^(.*?)\s*\(([^()]*)\)\s*$", raw)
-    return (m.group(1).strip(), m.group(2).strip()) if m else (raw.strip(), None)
+def strip_quotes(t: str) -> str:
+    return re.sub(r"\s+", " ", t.replace("«", "").replace("»", "").replace('"', "")).strip()
 
 
-def parse_year(text: str) -> int | None:
-    m = re.search(r"\d{3,4}", text)
-    return int(m.group()) if m else None
+def detect_lang(title: str, url: str) -> str:
+    slug = url.lower()
+    if re.search(r"(-qr\b|qoraqalpoq)", slug) or "қорақалпоқ" in title.lower() or re.search(r"[әөүңӘӨҮҢ]", title):
+        return "kaa"
+    if not re.search(r"[А-Яа-яЁёЎўҚқҒғҲҳ]", title):
+        return "uz-latn"
+    if "rus" in slug or (not re.search(r"[ЎўҚқҒғҲҳ]", title) and re.search(r"(ы|\bи\b|том|Книга|джуз)", title)):
+        return "ru"
+    return "uz-cyrl"
 
 
-def parse_sales_millions(text: str) -> float | None:
-    """Lower bound in millions, for sorting only. '28 – 30 million' -> 28.0, '>200 million' -> 200.0"""
-    m = re.search(r"(\d+(?:\.\d+)?)", text)
-    return float(m.group(1)) if m else None
+def detect_series(title: str) -> dict | None:
+    for key, _, _, rx in SERIES:
+        m = re.search(rx, title)
+        if m:
+            num = m.group(1) if m.groups() and m.group(1) else None
+            return {"key": key, "number": int(num) if num else None}
+    return None
 
 
-def genre_tags(text: str) -> list[str]:
-    t = text.lower()
-    if t.strip() in ("", "-"):
-        return [UNSPECIFIED[0]]
-    tags = [key for key, _, _, kws in GENRES if any(k in t for k in kws)]
-    return tags or ["fiction"]
+def detect_kind(title: str, url: str) -> str:
+    t = title.lower()
+    if "product_id=" in url or "чегирма" in t:
+        return "bundle"
+    if re.search(r"қутида|qutida|тўплами|to‘plami|жилдлик|\d\s*,\s*\d\s*,\s*\d|\b[2-9]\s*жилд\b", t):
+        return "set"
+    return "book"
 
 
-def plausible_dims(h, w, t, pages=None) -> bool:
-    """Reject edition records that are clearly not a single printed book (audio boxes, box sets, typos)."""
-    if not (h and w and t):
-        return False
-    if abs(w - t) < 3:  # square block: audio box / box set
-        return False
-    if pages:  # ~0.1 mm per page even on thick paper, plus boards
-        return t <= pages * 0.1 + 12
-    return t < 0.6 * w
+def years_of(text: str | None) -> list[int]:
+    return sorted({int(y) for y in re.findall(r"\b(19[5-9]\d|20[0-4]\d)\b", text or "")})
 
 
-def physical(e: dict) -> dict:
-    """Edition dims if plausible; otherwise fall back to a page-count thickness estimate."""
-    if e.get("dims_method") == "edition" and not plausible_dims(e.get("height_mm"), e.get("width_mm"), e.get("thickness_mm"), e.get("pages")):
-        pages = e.get("pages")
-        t = round(pages * 0.05 + 2) if pages and 8 <= pages <= 3000 else None
-        e = {k: v for k, v in e.items() if k not in ("height_mm", "width_mm", "thickness_mm", "dims_method")}
-        if t:
-            e |= {"thickness_mm": t, "dims_method": "pages_estimate"}
-        e["dims_rejected"] = True
-    return e
+def pages_of(text: str | None) -> int | None:
+    m = re.search(r"(\d{2,4})\s*(?:бет|bet|стр|с\.|page)", text or "", re.I)
+    return int(m.group(1)) if m else None
+
+
+def size_from_format(text: str | None) -> tuple[int, int] | None:
+    """'60×90 1/16' -> (215, 145) = (height, width) mm. Only power-of-two folds are supported."""
+    m = re.search(r"(\d{2,3})\s*[×xхX]\s*(\d{2,3})\s*(?:1\s*)?/\s*(\d{1,3})", text or "")
+    if not m:
+        return None
+    a, b, n = int(m.group(1)) * 10, int(m.group(2)) * 10, int(m.group(3))
+    folds = math.log2(n) if n > 0 else 0.5
+    if folds != int(folds) or not 2 <= folds <= 7:
+        return None
+    sides = [a, b]
+    for _ in range(int(folds)):
+        sides.sort()
+        sides[1] /= 2
+    w, h = sorted(sides)
+    return round(h - 10), round(w - 5)
+
+
+def size_from_title(title: str) -> tuple[int, int] | None:
+    m = re.search(r"(\d{1,2}(?:[.,]\d)?)\s*[×xх]\s*(\d{1,2}(?:[.,]\d)?)\s*см", title)
+    if not m:
+        return None
+    a, b = (float(x.replace(",", ".")) * 10 for x in m.groups())
+    return round(max(a, b)), round(min(a, b))
+
+
+def binding_of(text: str | None) -> str | None:
+    t = (text or "").lower()
+    if re.search(r"қаттиқ|qattiq|тв[её]рд|қатты", t):
+        return "hard"
+    if re.search(r"юмшоқ|yumshoq|мягк|жумсақ", t):
+        return "soft"
+    return None
 
 
 def build() -> dict:
-    enrichment = json.loads(ENRICH.read_text(encoding="utf-8")) if ENRICH.exists() else {}
-    books = []
-    with RAW.open(encoding="utf-8") as f:
-        for row in csv.DictReader(f, delimiter="\t"):
-            title, original = split_title(row["title"])
-            book_id = slugify(f"{title}-{row['author']}")
-            tags = genre_tags(row["genre"])
-            e = physical(dict(enrichment.get(book_id, {})))
-            books.append({
-                "id": book_id,
-                "title": title,
-                "original_title": original,
-                "author": row["author"],
-                "language": row["original_language"],
-                "year": parse_year(row["first_published"]),
-                "year_text": row["first_published"],
-                "sales_text": row["approx_sales"],
-                "sales_millions_min": parse_sales_millions(row["approx_sales"]),
-                "genre_text": None if row["genre"] == "-" else row["genre"],
-                "genre": tags[0],
-                "genre_tags": tags,
-                "list_source": SOURCE_URL,
-                # Physical edition data (null until scripts/enrich_openlibrary.py has run)
-                "height_mm": e.get("height_mm"),
-                "width_mm": e.get("width_mm"),
-                "thickness_mm": e.get("thickness_mm"),
-                "dims_method": e.get("dims_method"),   # "edition" | "pages_estimate" | None
-                "dims_rejected": bool(e.get("dims_rejected")),  # edition dims failed plausibility check
-                "pages": e.get("pages"),
-                "cover": e.get("cover"),
-                "edition_source": e.get("edition_url") or e.get("work_url"),
-            })
-    books.sort(key=lambda b: (b["year"] or 9999, b["title"]))
+    raw = json.loads(RAW.read_text(encoding="utf-8"))
+    books, seen = [], set()
+    for p in raw["products"]:
+        # every product on the author's page is included; by_shayx only records whether his name is printed
+        if p.get("error") or p["slug"] in seen:
+            continue
+        seen.add(p["slug"])
+        title = strip_quotes(p.get("title") or p.get("listing_title") or "")
+        lang = detect_lang(title, p["url"])
+        years = years_of(p.get("year"))
+        pages = pages_of(p.get("pages"))
+        binding = binding_of(p.get("binding")) or binding_of(title)
+        size, size_method = size_from_title(title), "title_cm"
+        if not size:
+            size, size_method = size_from_format(p.get("format")), "format"
+        if not size:
+            size_method = None
+        thickness = round(pages * 0.05 + {"hard": 4, "soft": 1.5}.get(binding, 3)) if pages else None
+        books.append({
+            "id": p["slug"],
+            "title": title,
+            "title_latn": to_latin(title) if lang == "uz-cyrl" else title,
+            "url": p["url"],
+            "lang": lang,
+            "kind": detect_kind(title, p["url"]),
+            "series": detect_series(title),
+            "author": p.get("author"),
+            "translator": p.get("translator"),
+            "publisher": p.get("publisher"),
+            "years": years,
+            "first_year": years[0] if years else None,
+            "latest_year": years[-1] if years else None,
+            "year_text": p.get("year"),
+            "pages": pages,
+            "isbn": p.get("isbn") or p.get("isbn_stats"),
+            "weight_kg": p.get("weight_kg"),
+            "format": p.get("format"),
+            "binding": binding,
+            "binding_text": p.get("binding"),
+            "height_mm": size[0] if size else None,
+            "width_mm": size[1] if size else None,
+            "size_method": size_method,
+            "thickness_mm": thickness,
+            "thickness_method": "pages" if thickness else None,
+            "cover": p.get("cover"),
+            "ebook_url": p.get("ebook_url"),
+            "description": p.get("description"),
+        })
+    books.sort(key=lambda b: (b["first_year"] or 9999, (b["series"] or {}).get("number") or 0, b["title"]))
     return {
-        "generated_from": SOURCE_URL,
-        "note": "Sales figures are approximate, as published on Wikipedia. Genre categories are this project's grouping of Wikipedia's free-text genre.",
-        "languages": {k: {"uz": v, "en": k} for k, v in LANGS.items()},
-        "genres": {k: {"uz": uz, "en": en} for k, uz, en, _ in GENRES} | {UNSPECIFIED[0]: {"uz": UNSPECIFIED[1], "en": UNSPECIFIED[2]}},
+        "source": raw.get("source"),
+        "site_total": raw.get("site_total"),
+        "author": {"uz": "Shayx Muhammad Sodiq Muhammad Yusuf", "en": "Shaykh Muhammad Sodiq Muhammad Yusuf",
+                   "cyrl": "Шайх Муҳаммад Содиқ Муҳаммад Юсуф"},
+        "languages": LANGS,
+        "series": {k: {"uz": uz, "en": en} for k, uz, en, _ in SERIES},
         "books": books,
     }
 
@@ -147,10 +204,10 @@ def build() -> dict:
 def main() -> None:
     data = build()
     OUT.write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
-    n = len(data["books"])
-    with_dims = sum(1 for b in data["books"] if b["dims_method"] == "edition")
-    with_cover = sum(1 for b in data["books"] if b["cover"])
-    print(f"{n} books -> {OUT.relative_to(ROOT)} | edition dims: {with_dims} | covers: {with_cover}")
+    b = data["books"]
+    print(f"{len(b)} books -> {OUT.relative_to(ROOT)} | with year: {sum(1 for x in b if x['first_year'])} | "
+          f"pages: {sum(1 for x in b if x['pages'])} | size: {sum(1 for x in b if x['height_mm'])} | "
+          f"covers: {sum(1 for x in b if x['cover'])}")
 
 
 if __name__ == "__main__":
