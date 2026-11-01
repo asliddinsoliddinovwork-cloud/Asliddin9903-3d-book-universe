@@ -108,7 +108,7 @@ def build() -> dict:
                 "dims_method": e.get("dims_method"),   # "edition" | "pages_estimate" | None
                 "pages": e.get("pages"),
                 "cover": e.get("cover"),
-                "edition_source": e.get("edition_url"),
+                "edition_source": e.get("edition_url") or e.get("work_url"),
             })
     books.sort(key=lambda b: (b["year"] or 9999, b["title"]))
     return {

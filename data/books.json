@@ -148,7 +148,7 @@
    "dims_method": "pages_estimate",
    "pages": 436,
    "cover": "covers/the-divine-comedy-dante-alighieri.jpg",
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL267377W"
   },
   {
    "id": "paul-et-virginie-jacques-henri-bernardin-de-saint-pierre",
@@ -196,7 +196,7 @@
    "dims_method": "pages_estimate",
    "pages": 576,
    "cover": null,
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL22427641W"
   },
   {
    "id": "pride-and-prejudice-jane-austen",
@@ -221,7 +221,7 @@
    "dims_method": "pages_estimate",
    "pages": 351,
    "cover": "covers/pride-and-prejudice-jane-austen.jpg",
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL66554W"
   },
   {
    "id": "a-tale-of-two-cities-charles-dickens",
@@ -246,7 +246,7 @@
    "dims_method": "pages_estimate",
    "pages": 388,
    "cover": "covers/a-tale-of-two-cities-charles-dickens.jpg",
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL8193465W"
   },
   {
    "id": "alice-s-adventures-in-wonderland-lewis-carroll",
@@ -271,7 +271,7 @@
    "dims_method": "pages_estimate",
    "pages": 133,
    "cover": "covers/alice-s-adventures-in-wonderland-lewis-carroll.jpg",
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL138052W"
   },
   {
    "id": "war-and-peace-leo-tolstoy",
@@ -345,7 +345,7 @@
    "dims_method": "pages_estimate",
    "pages": 454,
    "cover": "covers/ben-hur-a-tale-of-the-christ-lew-wallace.jpg",
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL20133399W"
   },
   {
    "id": "heidi-johanna-spyri",
@@ -396,7 +396,7 @@
    "dims_method": "pages_estimate",
    "pages": 186,
    "cover": "covers/the-adventures-of-pinocchio-carlo-collodi.jpg",
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL24667985W"
   },
   {
    "id": "adventures-of-huckleberry-finn-mark-twain",
@@ -469,7 +469,7 @@
    "dims_method": "pages_estimate",
    "pages": 26,
    "cover": "covers/a-message-to-garcia-elbert-hubbard.jpg",
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL1113702W"
   },
   {
    "id": "the-tale-of-peter-rabbit-beatrix-potter",
@@ -519,7 +519,7 @@
    "dims_method": "pages_estimate",
    "pages": 309,
    "cover": "covers/anne-of-green-gables-lucy-maud-montgomery.jpg",
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL77746W"
   },
   {
    "id": "the-wind-in-the-willows-kenneth-grahame",
@@ -664,7 +664,7 @@
    "dims_method": "pages_estimate",
    "pages": 392,
    "cover": null,
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL298029W"
   },
   {
    "id": "how-the-steel-was-tempered-nikolai-ostrovsky",
@@ -688,7 +688,7 @@
    "dims_method": "pages_estimate",
    "pages": 166,
    "cover": null,
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL31647152W"
   },
   {
    "id": "tobacco-road-erskine-caldwell",
@@ -785,7 +785,7 @@
    "dims_method": null,
    "pages": null,
    "cover": null,
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL31515613W"
   },
   {
    "id": "gone-with-the-wind-margaret-mitchell",
@@ -1007,7 +1007,7 @@
    "dims_method": "pages_estimate",
    "pages": 23,
    "cover": "covers/the-poky-little-puppy-janette-sebring-lowrey.jpg",
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL2810612W"
   },
   {
    "id": "the-stranger-albert-camus",
@@ -1031,7 +1031,7 @@
    "dims_method": null,
    "pages": null,
    "cover": null,
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL31270346W"
   },
   {
    "id": "the-little-prince-antoine-de-saint-exupery",
@@ -1055,7 +1055,7 @@
    "dims_method": "pages_estimate",
    "pages": 10,
    "cover": "covers/the-little-prince-antoine-de-saint-exupery.jpg",
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL24259583W"
   },
   {
    "id": "the-young-guard-alexander-alexandrovich-fadeyev",
@@ -1105,7 +1105,7 @@
    "dims_method": "pages_estimate",
    "pages": 192,
    "cover": "covers/man-s-search-for-meaning-viktor-frankl.jpg",
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL24557376W"
   },
   {
    "id": "the-common-sense-book-of-baby-and-child-care-benjamin-spock",
@@ -1129,7 +1129,7 @@
    "dims_method": null,
    "pages": null,
    "cover": null,
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL31590925W"
   },
   {
    "id": "goodnight-moon-margaret-wise-brown",
@@ -1181,7 +1181,7 @@
    "dims_method": "pages_estimate",
    "pages": 320,
    "cover": "covers/the-diary-of-anne-frank-anne-frank.jpg",
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL27294413W"
   },
   {
    "id": "the-plague-albert-camus",
@@ -1229,7 +1229,7 @@
    "dims_method": null,
    "pages": null,
    "cover": "covers/no-longer-human-osamu-dazai.jpg",
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL37579112W"
   },
   {
    "id": "kon-tiki-across-the-pacific-in-a-raft-thor-heyerdahl",
@@ -1301,7 +1301,7 @@
    "dims_method": "pages_estimate",
    "pages": 196,
    "cover": "covers/the-revolt-of-mamie-stover-william-bradford-huie.jpg",
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL2668631W"
   },
   {
    "id": "charlotte-s-web-e-b-white",
@@ -1495,7 +1495,7 @@
    "dims_method": "pages_estimate",
    "pages": 397,
    "cover": "covers/andromeda-nebula-ivan-yefremov.jpg",
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL34943621W"
   },
   {
    "id": "the-cat-in-the-hat-dr-seuss",
@@ -1544,7 +1544,7 @@
    "dims_method": null,
    "pages": null,
    "cover": "covers/night-elie-wiesel.jpg",
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL24288714W"
   },
   {
    "id": "things-fall-apart-chinua-achebe",
@@ -1815,7 +1815,7 @@
    "dims_method": null,
    "pages": null,
    "cover": null,
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL29355621W"
   },
   {
    "id": "the-outsiders-s-e-hinton",
@@ -2182,7 +2182,7 @@
    "dims_method": "pages_estimate",
    "pages": 203,
    "cover": "covers/the-bermuda-triangle-charles-berlitz.jpg",
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL3384738W"
   },
   {
    "id": "the-front-runner-patricia-nell-warren",
@@ -2426,7 +2426,7 @@
    "dims_method": null,
    "pages": null,
    "cover": "covers/eye-of-the-needle-ken-follett.jpg",
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL25651130W"
   },
   {
    "id": "flowers-in-the-attic-v-c-andrews",
@@ -2475,7 +2475,7 @@
    "dims_method": null,
    "pages": null,
    "cover": null,
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL25650434W"
   },
   {
    "id": "problems-in-china-s-socialist-economy-xue-muqiao",
@@ -2549,7 +2549,7 @@
    "dims_method": null,
    "pages": null,
    "cover": "covers/the-neverending-story-michael-ende.jpg",
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL31587398W"
   },
   {
    "id": "cosmos-carl-sagan",
@@ -2599,7 +2599,7 @@
    "dims_method": "pages_estimate",
    "pages": 518,
    "cover": "covers/the-name-of-the-rose-umberto-eco.jpg",
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL37535473W"
   },
   {
    "id": "ronia-the-robber-s-daughter-astrid-lindgren",
@@ -2648,7 +2648,7 @@
    "dims_method": "pages_estimate",
    "pages": 229,
    "cover": "covers/totto-chan-the-little-girl-at-the-window-tetsuko-kuroyanagi.jpg",
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL16926445W"
   },
   {
    "id": "the-secret-diary-of-adrian-mole-aged-1334-sue-townsend",
@@ -2673,7 +2673,7 @@
    "dims_method": "pages_estimate",
    "pages": 274,
    "cover": null,
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL43339137W"
   },
   {
    "id": "hairy-maclary-from-donaldson-s-dairy-lynley-dodd",
@@ -2698,7 +2698,7 @@
    "dims_method": "pages_estimate",
    "pages": 36,
    "cover": "covers/hairy-maclary-from-donaldson-s-dairy-lynley-dodd.jpg",
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL15852327W"
   },
   {
    "id": "the-goal-eliyahu-m-goldratt",
@@ -2746,7 +2746,7 @@
    "dims_method": null,
    "pages": null,
    "cover": null,
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL33838834W"
   },
   {
    "id": "knowledge-value-revolution-taichi-sakaiya",
@@ -2794,7 +2794,7 @@
    "dims_method": "pages_estimate",
    "pages": 290,
    "cover": "covers/perfume-patrick-suskind.jpg",
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL24895764W"
   },
   {
    "id": "love-you-forever-robert-munsch",
@@ -3014,7 +3014,7 @@
    "dims_method": "pages_estimate",
    "pages": 142,
    "cover": "covers/sophie-s-world-jostein-gaarder.jpg",
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL19671516W"
   },
   {
    "id": "diana-her-true-story-andrew-morton",
@@ -3234,7 +3234,7 @@
    "dims_method": "pages_estimate",
    "pages": 396,
    "cover": "covers/santa-evita-tomas-eloy-martinez.jpg",
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL877301W"
   },
   {
    "id": "the-horse-whisperer-nicholas-evans",
@@ -3499,7 +3499,7 @@
    "dims_method": "pages_estimate",
    "pages": 384,
    "cover": "covers/the-dukan-diet-pierre-dukan.jpg",
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL15727257W"
   },
   {
    "id": "life-of-pi-yann-martel",
@@ -3547,7 +3547,7 @@
    "dims_method": null,
    "pages": null,
    "cover": null,
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL36433603W"
   },
   {
    "id": "the-lovely-bones-alice-sebold",
@@ -3669,7 +3669,7 @@
    "dims_method": "pages_estimate",
    "pages": 527,
    "cover": "covers/wolf-totem-jiang-rong.jpg",
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL9936231W"
   },
   {
    "id": "the-book-thief-markus-zusak",
@@ -3694,7 +3694,7 @@
    "dims_method": "pages_estimate",
    "pages": 556,
    "cover": "covers/the-book-thief-markus-zusak.jpg",
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL5819456W"
   },
   {
    "id": "the-girl-with-the-dragon-tattoo-stieg-larsson",
@@ -3718,7 +3718,7 @@
    "dims_method": null,
    "pages": null,
    "cover": null,
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL31964906W"
   },
   {
    "id": "confucius-from-the-heart-yu-dan",
@@ -3742,7 +3742,7 @@
    "dims_method": "pages_estimate",
    "pages": 197,
    "cover": "covers/confucius-from-the-heart-yu-dan.jpg",
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL20376690W"
   },
   {
    "id": "the-boy-in-the-striped-pyjamas-john-boyne",
@@ -3890,7 +3890,7 @@
    "dims_method": "pages_estimate",
    "pages": 479,
    "cover": "covers/the-help-kathryn-stockett.jpg",
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL11999891W"
   },
   {
    "id": "the-lost-symbol-dan-brown",
@@ -3990,7 +3990,7 @@
    "dims_method": "pages_estimate",
    "pages": 256,
    "cover": "covers/my-brilliant-friend-elena-ferrante.jpg",
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL34947113W"
   },
   {
    "id": "sapiens-a-brief-history-of-humankind-yuval-noah-harari",
@@ -4038,7 +4038,7 @@
    "dims_method": "pages_estimate",
    "pages": 590,
    "cover": "covers/fifty-shades-darker-e-l-james.jpg",
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL16550681W"
   },
   {
    "id": "gone-girl-gillian-flynn",
@@ -4087,7 +4087,7 @@
    "dims_method": "pages_estimate",
    "pages": 492,
    "cover": "covers/me-before-you-jojo-moyes.jpg",
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL28353073W"
   },
   {
    "id": "the-fault-in-our-stars-john-green",
@@ -4211,7 +4211,7 @@
    "dims_method": null,
    "pages": null,
    "cover": null,
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL27419964W"
   },
   {
    "id": "becoming-michelle-obama",
@@ -4235,7 +4235,7 @@
    "dims_method": "pages_estimate",
    "pages": 464,
    "cover": "covers/becoming-michelle-obama.jpg",
-   "edition_source": null
+   "edition_source": "https://openlibrary.org/works/OL17930367W"
   },
   {
    "id": "where-the-crawdads-sing-delia-owens",

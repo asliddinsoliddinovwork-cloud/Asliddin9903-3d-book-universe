@@ -3,6 +3,10 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  # commits made by the enrich workflow (GITHUB_TOKEN) do not trigger 'push', so redeploy after it
+  workflow_run:
+    workflows: ["Enrich book data (Open Library)"]
+    types: [completed]
 permissions:
   contents: read
   pages: write
