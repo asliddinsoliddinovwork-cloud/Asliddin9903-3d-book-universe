@@ -1,7 +1,7 @@
-# Kitob Silindri / Book Cylinder
+# Kitob Javoni / Book Shelf
 
-3D silindr shaklidagi kitob javoni: siz ichida turasiz, dunyoning eng ko‘p sotilgan kitoblari atrofingizda yillar bo‘yicha tartiblangan.
-A 3D cylindrical bookshelf you stand inside, showing the world's best-selling books ordered by year.
+Dunyoning eng ko‘p sotilgan kitoblari bitta gorizontal javonda, yil bo‘yicha va haqiqiy o‘lcham nisbatida. Kitob qirrasini bossangiz, u burilib muqovasini ko‘rsatadi.
+The world’s best-selling books on one horizontal shelf, by year and at real proportions; click a spine to turn the book to its cover.
 
 ## Ma'lumot manbalari / Data sources
 

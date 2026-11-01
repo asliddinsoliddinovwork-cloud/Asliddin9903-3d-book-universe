@@ -22,6 +22,9 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from build_data import plausible_dims  # noqa: E402
+
 ROOT = Path(__file__).resolve().parent.parent
 BOOKS = ROOT / "data" / "books.json"
 ENRICH = ROOT / "data" / "enrichment.json"
@@ -83,6 +86,8 @@ def pick_edition(entries: list[dict]) -> tuple[dict | None, dict | None]:
     dims_ed = cover_ed = None
     for ed in entries:
         dims = parse_dimensions(ed.get("physical_dimensions"))
+        if dims and not plausible_dims(dims["height_mm"], dims["width_mm"], dims["thickness_mm"], ed.get("number_of_pages")):
+            dims = None
         has_cover = any(c and c > 0 for c in ed.get("covers", []) or [])
         if dims and has_cover:
             return ed, ed

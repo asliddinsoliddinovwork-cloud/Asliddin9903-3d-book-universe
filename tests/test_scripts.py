@@ -3,7 +3,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
 
-from build_data import build, genre_tags, parse_sales_millions, parse_year, split_title  # noqa: E402
+from build_data import build, plausible_dims, genre_tags, parse_sales_millions, parse_year, split_title  # noqa: E402
 from enrich_openlibrary import parse_dimensions, pages_thickness, pick_edition  # noqa: E402
 
 
@@ -55,3 +55,17 @@ def test_build_counts_and_unique_ids():
     assert years == sorted(years)
     assert all(b["genre"] in data["genres"] for b in data["books"])
     assert all(b["language"] in data["languages"] for b in data["books"])
+
+
+def test_plausible_dims_rejects_boxes_and_inconsistent_pages():
+    assert plausible_dims(198, 130, 25, 300)
+    assert not plausible_dims(178, 127, 111, 201)   # 201 pages cannot be 111 mm thick
+    assert not plausible_dims(142, 109, 109)        # square block: audio box / box set
+    assert plausible_dims(183, 130, 102, 1500)      # very long book is fine
+
+
+def test_pick_edition_skips_implausible():
+    eds = [{"key": "box", "physical_dimensions": "17.8 x 12.7 x 11.1 cm", "number_of_pages": 201, "covers": [1]},
+           {"key": "ok", "physical_dimensions": "19 x 13 x 2 cm", "covers": [2]}]
+    d, _ = pick_edition(eds)
+    assert d["key"] == "ok"

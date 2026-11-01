@@ -3,362 +3,262 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Kitob Silindri</title>
+<title>Kitob Javoni</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
 <style>
-/* Layout: full-screen 3D cylinder room; thin UI layers float on top. Single dark library look. */
+/* Layout: black gallery wall; one horizontal shelf of spines at real proportions; detail panel below. */
 :root{
-  --ink:#16120f; --panel:rgba(26,21,17,.88); --paper:#efe6d6; --muted:#a89c8a;
-  --brass:#c9a35b; --warn:#e0884f; --line:rgba(239,230,214,.14);
-  --f-display:"Spectral", Georgia, "Times New Roman", serif;
-  --f-ui:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --f-mono:"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --bg:#000; --fg:#f5f5f7; --muted:#86868b; --line:#2c2c2e; --chip:#1c1c1e; --accent:#f5f5f7;
+  /* SF Pro renders on Apple devices (system font); other systems fall back to Inter. */
+  --font:-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", "Helvetica Neue", Arial, sans-serif;
   color-scheme:dark;
 }
 *{box-sizing:border-box;}
-html,body{height:100%;margin:0;}
+html{height:100%;}
+body{margin:0;min-height:100%;}
 [hidden]{display:none!important;}
-body{background:var(--ink);color:var(--paper);font:14px/1.4 var(--f-ui);overflow:hidden;}
-#stage{position:fixed;inset:0;width:100%;height:100%;touch-action:none;cursor:grab;display:block;}
-#stage.dragging{cursor:grabbing;} #stage.hovering{cursor:pointer;}
-.ui{position:fixed;z-index:5;}
-#top{top:env(safe-area-inset-top,0px);left:0;right:0;
-  padding:12px max(16px,env(safe-area-inset-right,0px)) 12px max(16px,env(safe-area-inset-left,0px));
-  display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;background:linear-gradient(var(--ink),rgba(22,18,15,0));pointer-events:none;}
-#top > *{pointer-events:auto;}
-h1{margin:0;font:700 22px/1.1 var(--f-display);}
-h1 small{display:block;font:500 11px/1.3 var(--f-ui);color:var(--muted);letter-spacing:.08em;text-transform:uppercase;}
-.ctl{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
-label.l{font-size:11px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;}
-select,button{font:500 13px var(--f-ui);color:var(--paper);background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:7px 10px;cursor:pointer;}
-button:hover,select:hover{border-color:var(--brass);}
-:focus-visible{outline:2px solid var(--brass);outline-offset:2px;}
-#lang{font-family:var(--f-mono);}
-#rail{left:0;right:0;bottom:env(safe-area-inset-bottom,0px);
-  padding:12px max(16px,env(safe-area-inset-right,0px)) 14px max(16px,env(safe-area-inset-left,0px));
-  display:flex;gap:12px;align-items:center;background:linear-gradient(rgba(22,18,15,0),var(--ink));}
-#rail input[type=range]{flex:1;min-width:0;accent-color:var(--brass);}
-#yearOut{font:500 20px var(--f-mono);font-variant-numeric:tabular-nums;color:var(--brass);min-width:4.2ch;text-align:right;}
-#zoom{display:flex;gap:6px;} #zoom button{width:34px;padding:7px 0;}
-#card{right:max(16px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 64px);
-  width:min(340px,calc(100vw - 32px));max-height:calc(100% - 180px);overflow:auto;background:var(--panel);border:1px solid var(--line);
-  border-radius:6px;padding:16px;backdrop-filter:blur(6px);display:grid;gap:10px;}
-#card h2{margin:0;padding-right:28px;font:700 20px/1.2 var(--f-display);text-wrap:balance;}
-#card .by{color:var(--muted);font-size:13px;}
-#card .orig{font-style:italic;color:var(--muted);font-size:13px;}
-dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0;font-size:13px;}
+body{background:var(--bg);color:var(--fg);font:15px/1.45 var(--font);-webkit-font-smoothing:antialiased;
+  display:flex;flex-direction:column;min-height:100%;}
+.wrap{padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px));}
+
+header{padding-top:max(28px,env(safe-area-inset-top,0px));display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;}
+.brand{font-weight:600;font-size:15px;letter-spacing:-.01em;}
+.brand span{color:var(--muted);font-weight:400;}
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+select,button{font:500 13px var(--font);color:var(--fg);background:var(--chip);border:1px solid transparent;border-radius:980px;padding:7px 14px;cursor:pointer;}
+select{appearance:none;-webkit-appearance:none;padding-right:30px;
+  background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);
+  background-position:calc(100% - 16px) 52%,calc(100% - 11px) 52%;background-size:5px 5px;background-repeat:no-repeat;}
+select:hover,button:hover{border-color:#48484a;}
+:focus-visible{outline:2px solid #0a84ff;outline-offset:2px;}
+
+.title{margin:56px 0 0;display:flex;align-items:center;justify-content:center;gap:20px;
+  font-weight:600;font-size:clamp(20px,2.6vw,30px);letter-spacing:.06em;text-transform:uppercase;text-align:center;}
+.title::before,.title::after{content:"";height:1px;width:clamp(32px,8vw,80px);background:var(--fg);opacity:.8;flex:none;}
+.sub{margin:10px auto 0;text-align:center;color:var(--muted);font-size:14px;max-width:60ch;}
+
+/* Shelf */
+#shelfWrap{position:relative;margin-top:40px;}
+#shelf{display:flex;align-items:flex-end;gap:var(--gap,6px);overflow-x:auto;overflow-y:hidden;
+  padding:40px max(24px,env(safe-area-inset-right,0px)) 0 max(24px,env(safe-area-inset-left,0px));
+  scroll-behavior:smooth;scrollbar-width:none;perspective:1800px;}
+#shelf::-webkit-scrollbar{display:none;}
+.book{position:relative;flex:none;width:var(--t);height:var(--h);transition:width .55s cubic-bezier(.2,.8,.2,1),transform .25s ease;
+  cursor:pointer;background:none;border:0;padding:0;border-radius:0;perspective:1800px;}
+.book:hover:not(.open){transform:translateY(-10px);}
+.book .box{position:absolute;inset:0;transform-style:preserve-3d;transform-origin:var(--t) 50%;
+  transition:transform .55s cubic-bezier(.2,.8,.2,1);}
+.book.open .box{transform:translateX(calc(var(--t) * -1)) rotateY(-90deg);}
+.spine,.cover{position:absolute;top:0;height:100%;backface-visibility:hidden;}
+.spine{left:0;width:var(--t);background:var(--c,#3a3a3c);color:var(--ink,#fff);
+  display:flex;align-items:flex-start;justify-content:center;overflow:hidden;
+  box-shadow:inset 3px 0 6px rgba(255,255,255,.08),inset -4px 0 8px rgba(0,0,0,.35);}
+.spine b{writing-mode:vertical-rl;font-weight:600;font-size:var(--fs,14px);letter-spacing:-.005em;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;max-height:calc(100% - 28px);margin-top:16px;}
+.spine i{position:absolute;bottom:10px;left:0;right:0;text-align:center;font-style:normal;font-size:10px;opacity:.7;font-variant-numeric:tabular-nums;}
+.cover{left:var(--t);width:var(--w);transform-origin:left center;transform:rotateY(90deg);background:var(--c,#3a3a3c);overflow:hidden;
+  box-shadow:inset 6px 0 10px rgba(0,0,0,.35);}
+.cover img{width:100%;height:100%;object-fit:cover;display:block;}
+.cover .gen{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:10px;padding:16px;text-align:center;color:var(--ink,#fff);}
+.cover .gen strong{font-size:18px;line-height:1.2;letter-spacing:-.01em;}
+.cover .gen small{font-size:12px;opacity:.75;}
+.book.open{width:calc(var(--w) + 4px);}
+.book.dim{opacity:.18;}
+#shelfLine{height:1px;background:var(--line);margin:0 max(24px,env(safe-area-inset-left,0px));}
+#decades{position:relative;height:28px;overflow:hidden;}
+#decades span{position:absolute;top:8px;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap;}
+.edge{position:absolute;top:0;bottom:0;width:48px;pointer-events:none;z-index:2;}
+.edge.l{left:0;background:linear-gradient(90deg,var(--bg),transparent);} .edge.r{right:0;background:linear-gradient(270deg,var(--bg),transparent);}
+
+/* Year rail */
+#rail{display:flex;gap:14px;align-items:center;margin-top:8px;}
+#rail label{font-size:12px;color:var(--muted);white-space:nowrap;}
+#year{flex:1;min-width:0;accent-color:var(--fg);}
+#yearOut{font-weight:600;font-size:17px;font-variant-numeric:tabular-nums;min-width:4ch;text-align:right;}
+.nav{display:flex;gap:6px;} .nav button{width:36px;padding:7px 0;}
+
+/* Detail */
+#detail{margin:36px auto 0;max-width:880px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px 48px;min-height:180px;}
+#detail h2{grid-column:1/-1;margin:0;font-size:clamp(24px,3.4vw,36px);line-height:1.1;letter-spacing:-.02em;font-weight:700;text-wrap:balance;}
+#detail .meta{grid-column:1/-1;color:var(--muted);font-size:16px;margin-bottom:16px;}
+dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 18px;font-size:14px;align-content:start;}
 dt{color:var(--muted);} dd{margin:0;min-width:0;overflow-wrap:anywhere;}
-.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums;}
-.note{font-size:12px;color:var(--warn);line-height:1.4;}
-.src{font-size:12px;color:var(--muted);display:grid;gap:2px;}
-.src a{color:var(--brass);}
-#card .x{position:absolute;top:8px;right:8px;padding:2px 8px;}
-#help{left:max(16px,env(safe-area-inset-left,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 64px);
-  max-width:min(360px,calc(100vw - 32px));font-size:12px;color:var(--muted);line-height:1.5;background:var(--panel);
-  border:1px solid var(--line);border-radius:6px;padding:10px 12px;}
-#help b{color:var(--paper);font-weight:500;}
-#tip{position:fixed;z-index:6;pointer-events:none;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:5px 8px;font-size:12px;max-width:260px;}
-#msg{position:fixed;inset:auto 16px 50% 16px;z-index:9;text-align:center;color:var(--warn);font-size:15px;}
-@media (max-width:640px){ #help{display:none;} #card{left:16px;right:16px;width:auto;} h1{font-size:18px;} }
+.num{font-variant-numeric:tabular-nums;}
+.note{font-size:13px;color:#ff9f0a;margin-top:10px;}
+.src{font-size:13px;color:var(--muted);display:grid;gap:4px;align-content:start;}
+.src a{color:#2997ff;text-decoration:none;} .src a:hover{text-decoration:underline;}
+.empty{grid-column:1/-1;text-align:center;color:var(--muted);align-self:center;}
+footer{margin-top:auto;padding-top:48px;padding-bottom:max(24px,env(safe-area-inset-bottom,0px));color:var(--muted);font-size:12px;text-align:center;}
+#msg{color:#ff9f0a;text-align:center;margin-top:24px;}
+@media (max-width:700px){
+  #detail{grid-template-columns:1fr;gap:20px;}
+  .title{margin-top:36px;}
+}
+@media (prefers-reduced-motion:reduce){ .book,.book .box,#shelf{transition:none;scroll-behavior:auto;} }
 </style>
 </head>
 <body>
-<canvas id="stage" aria-label="3D bookshelf"></canvas>
-
-<div id="top" class="ui">
-  <h1><span data-i18n="title"></span><small data-i18n="subtitle"></small></h1>
-  <div class="ctl">
-    <label class="l" for="mode" data-i18n="arrange"></label>
-    <select id="mode">
-      <option value="all" data-i18n="modeAll"></option>
-      <option value="language" data-i18n="modeLang"></option>
-      <option value="genre" data-i18n="modeGenre"></option>
-    </select>
-    <select id="group" aria-label="Section" hidden></select>
-    <label class="l" for="genreFilter" data-i18n="genre"></label>
-    <select id="genreFilter"></select>
-    <button id="lang" type="button" aria-label="Language">EN</button>
+<header class="wrap">
+  <div class="brand"><span data-i18n="brand"></span></div>
+  <div class="tools">
+    <select id="genre" aria-label="Genre"></select>
+    <select id="language" aria-label="Language of original"></select>
+    <button id="lang" type="button" aria-label="Switch language">EN</button>
   </div>
+</header>
+
+<h1 class="title wrap" data-i18n="title"></h1>
+<p class="sub wrap" data-i18n="sub"></p>
+
+<div id="shelfWrap">
+  <div class="edge l"></div><div class="edge r"></div>
+  <div id="shelf" role="list" aria-label="Books"></div>
+  <div id="shelfLine"></div>
+  <div id="decades" aria-hidden="true"></div>
 </div>
 
-<div id="help" class="ui" data-i18n-html="help"></div>
-
-<div id="card" class="ui" hidden>
-  <button class="x" id="closeCard" type="button" aria-label="Close">×</button>
-  <h2 id="cTitle"></h2>
-  <div class="orig" id="cOrig"></div>
-  <div class="by" id="cAuthor"></div>
-  <dl>
-    <dt data-i18n="year"></dt><dd id="cYear" class="num"></dd>
-    <dt data-i18n="language"></dt><dd id="cLang"></dd>
-    <dt data-i18n="genre"></dt><dd id="cGenre"></dd>
-    <dt data-i18n="sales"></dt><dd id="cSales"></dd>
-    <dt data-i18n="height"></dt><dd id="cH" class="num"></dd>
-    <dt data-i18n="width"></dt><dd id="cW" class="num"></dd>
-    <dt data-i18n="thickness"></dt><dd id="cT" class="num"></dd>
-  </dl>
-  <div class="note" id="cNote"></div>
-  <div class="src" id="cSrc"></div>
-</div>
-
-<div id="rail" class="ui">
-  <label class="l" for="year" data-i18n="jump"></label>
-  <input id="year" type="range" min="1300" max="2025" step="1" value="1300">
+<div id="rail" class="wrap">
+  <label for="year" data-i18n="jump"></label>
+  <input id="year" type="range" min="1300" max="2025" value="1300">
   <output id="yearOut" for="year"></output>
-  <div id="zoom"><button id="zin" type="button" aria-label="Zoom in">+</button><button id="zout" type="button" aria-label="Zoom out">−</button></div>
+  <div class="nav"><button id="prev" type="button" aria-label="Previous">‹</button><button id="next" type="button" aria-label="Next">›</button></div>
 </div>
-<div id="tip" hidden></div>
-<div id="msg" hidden></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<section id="detail" class="wrap" aria-live="polite"></section>
+<div id="msg" class="wrap" hidden></div>
+
+<footer class="wrap" data-i18n-html="footer"></footer>
+
 <script>
 (function(){
 "use strict";
 const $=id=>document.getElementById(id);
-function showMsg(t){const m=$('msg');m.textContent=t;m.hidden=!t;}
-
-/* ---------- i18n ---------- */
 const I18N={
- uz:{title:'Kitob Silindri',subtitle:'Dunyoning eng ko‘p sotilgan kitoblari · yillar bo‘yicha',arrange:'Tartib',
-  modeAll:'Hammasi (yil bo‘yicha)',modeLang:'Asl til bo‘yicha',modeGenre:'Janr bo‘yicha',genre:'Janr',allGenres:'Barcha janrlar',
-  year:'Yil',language:'Asl tili',sales:'Sotuv (taxm.)',height:'Bo‘yi',width:'Eni',thickness:'Qalinligi',jump:'Yilga o‘tish',
-  author:'Muallif',listSrc:'Ro‘yxat manbasi: Wikipedia',edSrc:'Nashr ma’lumoti: Open Library',coverSrc:'Muqova: Open Library',
-  estDefault:'O‘lcham manbada topilmadi: standart 210 × 140 mm ishlatildi (taxminiy).',
-  estThick:'Qalinlik sahifalar sonidan hisoblangan (taxminiy).',noThick:'Qalinlik manbada yo‘q: 30 mm deb olindi (taxminiy).',
-  genreNote:'Janr guruhi: Wikipedia’dagi janr matnidan loyiha bo‘yicha ajratilgan.',
-  help:'<b>Boshqaruv:</b> sudrab aylantiring, g‘ildirak yoki +/− bilan yaqinlashtiring, kitobni bosing. Ro‘yxat: Wikipedia “List of best-selling books” (10 mln+ nusxa). O‘lcham va muqovalar Open Library’dan; topilmaganlari <b>taxminiy</b> deb belgilangan.',
-  loadFail:'Ma’lumot yuklanmadi. Sahifani veb-server orqali oching (README’ga qarang).',noGl:'3D kutubxona yuklanmadi. Sahifani yangilang.',books:'kitob'},
- en:{title:'Book Cylinder',subtitle:'The world’s best-selling books · ordered by year',arrange:'Arrange',
-  modeAll:'All (by year)',modeLang:'By original language',modeGenre:'By genre',genre:'Genre',allGenres:'All genres',
-  year:'Year',language:'Original language',sales:'Sales (approx.)',height:'Height',width:'Width',thickness:'Thickness',jump:'Jump to year',
-  author:'Author',listSrc:'List source: Wikipedia',edSrc:'Edition data: Open Library',coverSrc:'Cover: Open Library',
-  estDefault:'No dimensions found in sources: default 210 × 140 mm used (estimate).',
-  estThick:'Thickness estimated from page count.',noThick:'No thickness in sources: 30 mm assumed (estimate).',
-  genreNote:'Genre group: this project’s grouping of Wikipedia’s genre text.',
-  help:'<b>Controls:</b> drag to look around, scroll or +/− to zoom, click a book. List: Wikipedia “List of best-selling books” (10M+ copies). Dimensions and covers from Open Library; anything not found is marked <b>estimated</b>.',
-  loadFail:'Could not load data. Open the page through a web server (see README).',noGl:'3D library failed to load. Reload the page.',books:'books'}
+ uz:{brand:'Kitob Javoni',title:'Eng ko‘p sotilgan kitoblar',sub:'Dunyoda 10 milliondan ortiq nusxada sotilgan kitoblar, nashr yili bo‘yicha. O‘lchamlar haqiqiy nisbatda.',
+  allGenres:'Barcha janrlar',allLangs:'Barcha tillar',jump:'Yilga o‘tish',year:'Yil',language:'Asl tili',genre:'Janr',sales:'Sotuv (taxm.)',
+  size:'O‘lcham',pages:'Sahifalar',listSrc:'Ro‘yxat: Wikipedia',olSrc:'Nashr: Open Library',cover:'Muqova: Open Library',
+  estHW:'Bo‘yi va eni manbada topilmadi: 210 × 140 mm deb olindi (taxminiy).',estT:'Qalinlik sahifalar sonidan hisoblangan (taxminiy).',rej:'Open Library’dagi nashr o‘lchami ishonchsiz chiqdi (masalan, audio quti), shuning uchun ishlatilmadi.',noT:'Qalinlik topilmadi: 30 mm deb olindi (taxminiy).',
+  pick:'Kitobni tanlang: qirrasini bosing yoki ‹ › tugmalaridan foydalaning.',none:'Bu filtr bo‘yicha kitob yo‘q.',
+  loadFail:'Ma’lumot yuklanmadi. Sahifani veb-server orqali oching.',genreNote:'Janr guruhi Wikipedia’dagi janr matnidan ajratilgan.',
+  footer:'Ro‘yxat: <a href="https://en.wikipedia.org/wiki/List_of_best-selling_books" target="_blank" rel="noopener">Wikipedia</a> · O‘lcham va muqovalar: <a href="https://openlibrary.org" target="_blank" rel="noopener">Open Library</a> · Sotuv raqamlari taxminiy'},
+ en:{brand:'Book Shelf',title:'Best-selling books',sub:'Books that have sold more than 10 million copies worldwide, by year of first publication. Drawn to real proportions.',
+  allGenres:'All genres',allLangs:'All languages',jump:'Jump to year',year:'Year',language:'Original language',genre:'Genre',sales:'Sales (approx.)',
+  size:'Size',pages:'Pages',listSrc:'List: Wikipedia',olSrc:'Edition: Open Library',cover:'Cover: Open Library',
+  estHW:'Height and width not found in sources: 210 × 140 mm assumed (estimate).',estT:'Thickness estimated from page count.',rej:'The Open Library edition size looked implausible (e.g. an audio box), so it was not used.',noT:'Thickness not found: 30 mm assumed (estimate).',
+  pick:'Pick a book: click its spine or use the ‹ › buttons.',none:'No books match this filter.',
+  loadFail:'Could not load data. Open the page through a web server.',genreNote:'Genre group derived from Wikipedia’s genre text.',
+  footer:'List: <a href="https://en.wikipedia.org/wiki/List_of_best-selling_books" target="_blank" rel="noopener">Wikipedia</a> · Sizes and covers: <a href="https://openlibrary.org" target="_blank" rel="noopener">Open Library</a> · Sales figures are approximate'}
 };
-let lang='uz';try{lang=localStorage.getItem('kc-lang')||'uz';}catch(e){}
+let lang='uz';try{lang=localStorage.getItem('kj-lang')||'uz';}catch(e){}
 const T=k=>I18N[lang][k]??k;
-
-if(!window.THREE){showMsg(I18N[lang].noGl);return;}
-
-/* ---------- Constants (metres) ---------- */
-const ROWS=[1.92,1.52,1.12,0.72,0.32];
-const SHELF_DEPTH=0.27,BOARD_T=0.02,GAP=0.002,EYE=1.45;
 const DEF={h:210,w:140,t:30};
-const SPINE_COLORS=['#6b2d2a','#2f4a3a','#1f3550','#7a5a2b','#4a2f4f','#3d3d3a','#8a3f22','#28433f','#5a1f2a','#2b2b45','#6e6a4c','#93704a'];
+const PALETTE=['#c4542e','#2c2c2e','#d1d1d6','#1c1c1e','#a1a1a6','#3a3a3c','#8e8e93','#e5e5ea'];
+let DATA=null,books=[],openIdx=-1,S=1.4;
+
 function hash(s){let h=0;for(const c of s)h=(h*31+c.codePointAt(0))|0;return Math.abs(h);}
+function ink(hex){const n=parseInt(hex.slice(1),16),r=n>>16,g=n>>8&255,b=n&255;return (0.299*r+0.587*g+0.114*b)>150?'#1d1d1f':'#f5f5f7';}
+function langName(k){return DATA.languages[k]?.[lang]||k;}
+function genreName(k){return DATA.genres[k]?.[lang]||k;}
+function scale(){return Math.max(0.9,Math.min(1.7,(innerHeight*0.46)/260));}
 
-/* ---------- Scene ---------- */
-const canvas=$('stage');
-const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
-renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));renderer.outputEncoding=THREE.sRGBEncoding;
-const scene=new THREE.Scene();scene.background=new THREE.Color('#120e0b');scene.fog=new THREE.Fog('#120e0b',4,14);
-const camera=new THREE.PerspectiveCamera(62,1,0.02,60);camera.position.set(0,EYE,0);
-scene.add(new THREE.HemisphereLight('#fff1d8','#2a1c12',0.75));
-const lamp=new THREE.PointLight('#ffd9a0',1.1,12,1.6);lamp.position.set(0,2.5,0);scene.add(lamp);
-const lamp2=new THREE.PointLight('#ffe8c8',0.5,8,2);lamp2.position.set(0,0.6,0);scene.add(lamp2);
-function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
-function woodTexture(base,stripe,w,h,rep){const c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d');
-  g.fillStyle=base;g.fillRect(0,0,w,h);const r=mulberry32(3);
-  for(let i=0;i<80;i++){g.strokeStyle=stripe;g.globalAlpha=0.05+r()*0.12;g.lineWidth=1+r()*3;const y=r()*h;g.beginPath();g.moveTo(0,y);for(let x=0;x<=w;x+=32)g.lineTo(x,y+Math.sin(x/40+i)*3);g.stroke();}
-  const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(rep,1);t.encoding=THREE.sRGBEncoding;return t;}
-const matBoard=new THREE.MeshStandardMaterial({map:woodTexture('#6b4a2f','#2b1a0e',512,64,24),roughness:0.8,side:THREE.DoubleSide});
-const matWall=new THREE.MeshStandardMaterial({map:woodTexture('#2c1e14','#0f0904',512,128,10),roughness:0.95,side:THREE.DoubleSide});
-const matFloor=new THREE.MeshStandardMaterial({color:'#1d1510',roughness:1});
-const matPages=new THREE.MeshStandardMaterial({color:'#e4d8bf',roughness:1});
+/* Average colour of a cover, used for its spine (same-origin images only). */
+function coverColour(img){try{const c=document.createElement('canvas');c.width=c.height=12;const g=c.getContext('2d');g.drawImage(img,0,0,12,12);
+  const d=g.getImageData(0,0,12,12).data;let r=0,gg=0,b=0;for(let i=0;i<d.length;i+=4){r+=d[i];gg+=d[i+1];b+=d[i+2];}const n=d.length/4;
+  const f=v=>Math.round(v/n*0.85).toString(16).padStart(2,'0');return '#'+f(r)+f(gg)+f(b);}catch(e){return null;}}
 
-let room=new THREE.Group();scene.add(room);
-let bookMeshes=[],groups=[],R=2,DATA=null;
-const disposables=[];const track=o=>(disposables.push(o),o);
-
-function fitText(g,text,maxW,size,weight,family){let s=size;do{g.font=weight+' '+s+'px '+family;s--;}while(g.measureText(text).width>maxW&&s>8);}
-function spineTexture(b){const W=64,H=256,c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');
-  g.fillStyle=b.color;g.fillRect(0,0,W,H);
-  const grd=g.createLinearGradient(0,0,W,0);grd.addColorStop(0,'rgba(0,0,0,.35)');grd.addColorStop(.3,'rgba(255,255,255,.08)');grd.addColorStop(1,'rgba(0,0,0,.4)');g.fillStyle=grd;g.fillRect(0,0,W,H);
-  g.fillStyle='#d8bd7e';g.fillRect(0,14,W,2);g.fillRect(0,H-16,W,2);
-  g.save();g.translate(W/2,H/2);g.rotate(Math.PI/2);g.fillStyle='#ecdcb4';g.textAlign='center';g.textBaseline='middle';
-  fitText(g,b.title,H-60,26,'600','Spectral, Georgia, serif');g.fillText(b.title,0,-6);
-  g.font='500 15px "IBM Plex Mono", monospace';g.fillStyle='#d8bd7e';g.fillText(String(b.year??'—'),0,16);g.restore();
-  const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.anisotropy=4;return track(t);}
-function coverTexture(b){const W=256,H=Math.round(256*(b.h/b.w)),c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');
-  g.fillStyle=b.color;g.fillRect(0,0,W,H);g.strokeStyle='#d8bd7e';g.lineWidth=3;g.strokeRect(14,14,W-28,H-28);g.fillStyle='#ecdcb4';g.textAlign='center';
-  const words=b.title.split(' ');const lines=[''];g.font='700 26px Spectral, Georgia, serif';
-  words.forEach(w=>{const t=(lines[lines.length-1]+' '+w).trim();if(g.measureText(t).width>W-50&&lines[lines.length-1])lines.push(w);else lines[lines.length-1]=t;});
-  lines.forEach((l,i)=>g.fillText(l,W/2,H*0.3+i*32));g.font='500 16px "IBM Plex Sans", sans-serif';g.fillStyle='#d8bd7e';g.fillText(b.author,W/2,H*0.7);
-  g.font='500 15px "IBM Plex Mono", monospace';g.fillText(String(b.year??''),W/2,H*0.78);
-  const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;return track(t);}
-function labelMesh(text,w,h,o={}){const px=o.px||48,c=document.createElement('canvas');c.height=px*2;c.width=Math.round(px*2*w/h);const g=c.getContext('2d');
-  g.fillStyle=o.bg||'#1a120c';g.fillRect(0,0,c.width,c.height);g.fillStyle=o.fg||'#c9a35b';g.textAlign='center';g.textBaseline='middle';
-  fitText(g,text,c.width-16,Math.round(px*1.1),o.weight||'600',o.family||'"IBM Plex Mono", monospace');g.fillText(text,c.width/2,c.height/2+2);
-  const t=track(new THREE.CanvasTexture(c));t.encoding=THREE.sRGBEncoding;t.anisotropy=4;
-  return new THREE.Mesh(track(new THREE.PlaneGeometry(w,h)),track(new THREE.MeshBasicMaterial({map:t})));}
-
-/* ---------- Data ---------- */
-function prep(b){return Object.assign({},b,{
-  h:b.height_mm||DEF.h,w:b.width_mm||DEF.w,t:b.thickness_mm||DEF.t,
-  hwEstimated:!(b.height_mm&&b.width_mm),tEstimated:!b.thickness_mm,
-  color:SPINE_COLORS[hash(b.id)%SPINE_COLORS.length]});}
-function langName(k){const l=DATA.languages[k];return l?l[lang]:k;}
-function genreName(k){const g=DATA.genres[k];return g?g[lang]:k;}
-function makeGroups(){
-  const mode=$('mode').value,gf=$('genreFilter').value;
-  const books=DATA.books.filter(b=>gf==='*'||b.genre_tags.includes(gf));
-  if(mode==='all')return [{key:'all',name:'',books}];
-  const by=new Map();const key=mode==='language'?(b=>b.language):(b=>b.genre);
-  books.forEach(b=>{const k=key(b);if(!by.has(k))by.set(k,[]);by.get(k).push(b);});
-  return [...by.entries()].sort((a,b)=>b[1].length-a[1].length)
-    .map(([k,bs])=>({key:k,name:mode==='language'?langName(k):genreName(k),books:bs}));
-}
-
-/* ---------- Layout: each group gets a sector sized by its shelf length; books flow rows by year ---------- */
-function rowsNeeded(books,arc){let rows=1,s=0;for(const b of books){const t=b.t/1000+GAP;if(s+t>arc&&s>0){rows++;s=0;}s+=t;}return rows;}
-function build(){
-  room.traverse(o=>{if(o.geometry&&!disposables.includes(o.geometry))o.geometry.dispose();});
-  disposables.forEach(d=>d.dispose());disposables.length=0;scene.remove(room);room=new THREE.Group();scene.add(room);
-  bookMeshes=[];selected=null;hideCard();hideTip();
-  groups=makeGroups().filter(g=>g.books.length).map(g=>({...g,books:g.books.map(prep).sort((a,b)=>(a.year??9999)-(b.year??9999))}));
-  const n=groups.length;if(!n){updateGroupSelect();return;}
-  const margin=n>1?0.16:0.06;
-  const len=groups.map(g=>g.books.reduce((s,b)=>s+b.t/1000+GAP,0)+margin);
-  const total=len.reduce((a,b)=>a+b,0);
-  // shares: proportional to shelf length, but at least 4% so tiny groups still get a readable label
-  let shares=len.map(l=>Math.max(l/total,0.04));const ss=shares.reduce((a,b)=>a+b,0);shares=shares.map(s=>s/ss);
-  for(R=1.3;R<12;R+=0.05){if(groups.every((g,i)=>rowsNeeded(g.books,shares[i]*2*Math.PI*R-margin)<=ROWS.length))break;}
-  const outer=R+SHELF_DEPTH;
-  const wall=new THREE.Mesh(track(new THREE.CylinderGeometry(outer,outer,2.5,192,1,true)),matWall);wall.position.y=1.25;room.add(wall);
-  const floor=new THREE.Mesh(track(new THREE.CircleGeometry(outer+0.05,96)),matFloor);floor.rotation.x=-Math.PI/2;room.add(floor);
-  const ceil=new THREE.Mesh(track(new THREE.CircleGeometry(outer+0.05,96)),track(new THREE.MeshStandardMaterial({color:'#0e0a07',side:THREE.DoubleSide})));ceil.rotation.x=Math.PI/2;ceil.position.y=2.5;room.add(ceil);
-  const boardTop=track(new THREE.RingGeometry(R,outer,192,1)),boardEdge=track(new THREE.CylinderGeometry(R,R,BOARD_T,192,1,true));
-  [...ROWS,2.32].forEach(y=>{const top=new THREE.Mesh(boardTop,matBoard);top.rotation.x=-Math.PI/2;top.position.y=y+BOARD_T/2;room.add(top);
-    const e=new THREE.Mesh(boardEdge,matBoard);e.position.y=y;room.add(e);});
-  const geo=new Map();let a0=0;
-  groups.forEach((g,gi)=>{
-    const sector=shares[gi]*2*Math.PI,arc=sector*R-margin;g.a0=a0;g.sector=sector;
-    if(n>1){const pg=track(new THREE.BoxGeometry(0.025,2.1,SHELF_DEPTH)),p=new THREE.Mesh(pg,matBoard);
-      p.position.set(Math.cos(a0)*(R+SHELF_DEPTH/2),1.27,Math.sin(a0)*(R+SHELF_DEPTH/2));p.lookAt(0,1.27,0);room.add(p);
-      const mid=a0+sector/2,lw=Math.min(arc*0.9,1.4),lab=labelMesh(g.name+' · '+g.books.length,lw,0.12,{family:'Spectral, Georgia, serif',fg:'#e8d6a8',bg:'#21160e'});
-      lab.position.set(Math.cos(mid)*(R-0.005),2.41,Math.sin(mid)*(R-0.005));lab.lookAt(0,2.41,0);room.add(lab);}
-    const start=a0+(margin/2)/R;let row=0,s=0,lastDec=null;
-    g.books.forEach(b=>{
-      const t=b.t/1000,h=b.h/1000,w=b.w/1000;
-      if(s+t+GAP>arc&&s>0){row++;s=0;}
-      const y0=ROWS[Math.min(row,ROWS.length-1)],ang=start+(s+t/2)/R,bookStart=s;s+=t+GAP;
-      const key=t+'x'+h+'x'+w;let gm=geo.get(key);if(!gm){gm=track(new THREE.BoxGeometry(t,h,w));geo.set(key,gm);}
-      const side=track(new THREE.MeshStandardMaterial({color:b.color,roughness:0.85}));
-      const spine=track(new THREE.MeshStandardMaterial({map:spineTexture(b),roughness:0.75}));
-      // faces: +x front cover, -x back cover, +y/-y page edges, +z spine (faces centre), -z fore-edge
-      const mesh=new THREE.Mesh(gm,[side,side,matPages,matPages,spine,matPages]);
-      const rad=R+0.012+w/2,y=y0+BOARD_T/2+h/2+0.001;
-      mesh.position.set(Math.cos(ang)*rad,y,Math.sin(ang)*rad);mesh.lookAt(0,y,0);
-      mesh.userData={book:b,ang,home:mesh.position.clone(),homeQ:mesh.quaternion.clone(),pull:0,p:0};
-      b.ang=ang;b.y=y;b.gi=gi;room.add(mesh);bookMeshes.push(mesh);
-      const dec=b.year!=null?Math.floor(b.year/10)*10:null;
-      if(dec!==lastDec&&dec!=null){lastDec=dec;const lab=labelMesh(String(dec),0.075,0.018,{px:32});
-        const la=start+bookStart/R+0.0375/R;lab.position.set(Math.cos(la)*(R-0.002),y0,Math.sin(la)*(R-0.002));lab.lookAt(0,y0,0);room.add(lab);}
-    });
-    a0+=sector;
+function render(){
+  S=scale();
+  const gf=$('genre').value,lf=$('language').value;
+  books=DATA.books.filter(b=>(gf==='*'||b.genre_tags.includes(gf))&&(lf==='*'||b.language===lf));
+  const shelf=$('shelf');shelf.innerHTML='';openIdx=-1;
+  document.documentElement.style.setProperty('--gap',Math.round(4*S)+'px');
+  books.forEach((b,i)=>{
+    const h=(b.height_mm||DEF.h)*S,w=(b.width_mm||DEF.w)*S,t=Math.max(14,(b.thickness_mm||DEF.t)*S);
+    const c=PALETTE[hash(b.id)%PALETTE.length];
+    const el=document.createElement('button');el.type='button';el.className='book';el.setAttribute('role','listitem');
+    el.style.cssText=`--h:${h}px;--w:${w}px;--t:${t}px;--c:${c};--ink:${ink(c)};--fs:${Math.max(9,Math.min(15,t*0.42))}px`;
+    el.setAttribute('aria-label',b.title+', '+b.author+', '+(b.year_text||''));
+    el.innerHTML=`<div class="box"><div class="spine"><b></b><i class="num"></i></div><div class="cover"></div></div>`;
+    el.querySelector('b').textContent=b.title;el.querySelector('i').textContent=t>=26?(b.year??''):'';
+    const cov=el.querySelector('.cover');
+    if(b.cover){const img=new Image();img.alt='';img.loading='lazy';img.decoding='async';img.src=b.cover;
+      img.onload=()=>{const col=coverColour(img);if(col){el.style.setProperty('--c',col);el.style.setProperty('--ink',ink(col));}};
+      img.onerror=()=>{img.remove();cov.appendChild(genCover(b));};cov.appendChild(img);}
+    else cov.appendChild(genCover(b));
+    el.onclick=()=>toggle(i);
+    shelf.appendChild(el);
   });
-  updateGroupSelect();goToGroup(0,true);
+  drawDecades();updateRange();showDetail(null);
 }
+function genCover(b){const d=document.createElement('div');d.className='gen';const s=document.createElement('strong');s.textContent=b.title;
+  const a=document.createElement('small');a.textContent=b.author;d.append(s,a);return d;}
+function drawDecades(){const box=$('decades');box.innerHTML='';const shelf=$('shelf');let last=null;
+  [...shelf.children].forEach((el,i)=>{const y=books[i].year;if(y==null)return;const dec=y<1900?Math.floor(y/100)*100:Math.floor(y/10)*10;
+    if(dec!==last){last=dec;const s=document.createElement('span');s.textContent=y<1900?dec+'s':dec;s.dataset.left=el.offsetLeft;box.appendChild(s);}});
+  positionDecades();}
+function positionDecades(){const sl=$('shelf').scrollLeft;let lastX=-99;
+  [...$('decades').children].forEach(s=>{const x=Number(s.dataset.left)-sl;s.style.left=x+'px';
+    s.style.visibility=x-lastX<40?'hidden':'visible';if(s.style.visibility==='visible')lastX=x;});}
+$('shelf').addEventListener('scroll',()=>requestAnimationFrame(positionDecades),{passive:true});
+$('shelf').addEventListener('wheel',e=>{if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){$('shelf').scrollLeft+=e.deltaY;e.preventDefault();}},{passive:false});
 
-/* ---------- Camera ---------- */
-let yaw=0,pitch=0,tYaw=0,tPitch=0,fov=62,tFov=62;
-function aim(){const cp=Math.cos(pitch);camera.lookAt(Math.cos(yaw)*cp,EYE+Math.sin(pitch),Math.sin(yaw)*cp);}
-function nearest(cur,t){let d=t-cur;d=((d+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;return cur+d;}
-function lookAtBook(b,instant){tYaw=nearest(yaw,b.ang);tPitch=Math.atan2(b.y-EYE,R);if(instant){yaw=tYaw;pitch=tPitch;}}
-function curGroup(){return groups.length>1?Number($('group').value||0):0;}
-function goToGroup(gi,instant){const g=groups[gi];if(!g)return;
-  if(groups.length>1){tYaw=nearest(yaw,g.a0+g.sector/2);tPitch=Math.atan2(ROWS[0]+0.1-EYE,R);if(instant){yaw=tYaw;pitch=tPitch;}}
-  else lookAtBook(g.books[0],instant);
-  updateYearRange();}
-function updateGroupSelect(){const gs=$('group');gs.innerHTML='';gs.hidden=groups.length<2;
-  groups.forEach((g,i)=>{const o=document.createElement('option');o.value=i;o.textContent=g.name+' ('+g.books.length+')';gs.appendChild(o);});}
-function updateYearRange(){const bs=(groups[curGroup()]?.books||[]).filter(b=>b.year!=null);const el=$('year');
-  if(!bs.length)return;el.min=bs[0].year;el.max=bs[bs.length-1].year;el.value=bs[0].year;$('yearOut').textContent=bs[0].year;}
-
-let drag=null,moved=0;
-canvas.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY};moved=0;canvas.setPointerCapture(e.pointerId);canvas.classList.add('dragging');});
-canvas.addEventListener('pointermove',e=>{if(drag){const dx=e.clientX-drag.x,dy=e.clientY-drag.y;moved+=Math.abs(dx)+Math.abs(dy);drag={x:e.clientX,y:e.clientY};
-  const k=(fov/62)*0.0042;tYaw-=dx*k;tPitch=Math.max(-1.1,Math.min(1.1,tPitch+dy*k));hideTip();}else hover(e);});
-canvas.addEventListener('pointerup',e=>{canvas.classList.remove('dragging');if(drag&&moved<6)pick(e);drag=null;});
-canvas.addEventListener('pointercancel',()=>{drag=null;canvas.classList.remove('dragging');});
-canvas.addEventListener('wheel',e=>{e.preventDefault();tFov=Math.max(18,Math.min(85,tFov+e.deltaY*0.03));},{passive:false});
-$('zin').onclick=()=>tFov=Math.max(18,tFov-10);$('zout').onclick=()=>tFov=Math.min(85,tFov+10);
+function toggle(i){const els=$('shelf').children;
+  if(openIdx===i){els[i].classList.remove('open');openIdx=-1;showDetail(null);return;}
+  if(openIdx>=0&&els[openIdx])els[openIdx].classList.remove('open');
+  openIdx=i;const el=els[i];el.classList.add('open');showDetail(books[i]);
+  setTimeout(()=>{const sh=$('shelf');sh.scrollLeft=el.offsetLeft-sh.clientWidth/2+el.offsetWidth/2;},60);
+  if(books[i].year!=null){$('year').value=books[i].year;$('yearOut').textContent=books[i].year;}}
+function step(d){if(!books.length)return;const n=openIdx<0?(d>0?0:books.length-1):Math.max(0,Math.min(books.length-1,openIdx+d));if(n!==openIdx)toggle(n);}
+$('prev').onclick=()=>step(-1);$('next').onclick=()=>step(1);
 addEventListener('keydown',e=>{if(['INPUT','SELECT'].includes(e.target.tagName))return;
-  if(e.key==='ArrowLeft')tYaw-=0.12;if(e.key==='ArrowRight')tYaw+=0.12;if(e.key==='ArrowUp')tPitch=Math.min(1.1,tPitch+0.08);if(e.key==='ArrowDown')tPitch=Math.max(-1.1,tPitch-0.08);if(e.key==='Escape')hideCard();});
+  if(e.key==='ArrowRight'){step(1);e.preventDefault();}if(e.key==='ArrowLeft'){step(-1);e.preventDefault();}
+  if(e.key==='Escape'&&openIdx>=0)toggle(openIdx);});
 
-/* ---------- Picking & card ---------- */
-const ray=new THREE.Raycaster(),ndc=new THREE.Vector2(),tip=$('tip');
-function hit(e){const r=canvas.getBoundingClientRect();ndc.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);ray.setFromCamera(ndc,camera);return ray.intersectObjects(bookMeshes,false)[0]?.object||null;}
-let hoverT=0;
-function hover(e){const now=performance.now();if(now-hoverT<40)return;hoverT=now;const m=hit(e);canvas.classList.toggle('hovering',!!m);
-  if(m){const b=m.userData.book;tip.hidden=false;tip.textContent=b.title+' — '+b.author+(b.year!=null?' · '+b.year:'');tip.style.left=Math.min(e.clientX+14,innerWidth-270)+'px';tip.style.top=(e.clientY+14)+'px';}else hideTip();}
-function hideTip(){tip.hidden=true;}
-let selected=null;
-const loader=new THREE.TextureLoader();
-function pick(e){const m=hit(e);if(m)select(m);}
-function select(m){if(selected&&selected!==m)selected.userData.pull=0;selected=m;m.userData.pull=1;const b=m.userData.book;
-  if(!m.userData.coverDone){m.userData.coverDone=true;
-    const setCover=tex=>{tex.encoding=THREE.sRGBEncoding;track(tex);m.material[0]=track(new THREE.MeshStandardMaterial({map:tex,roughness:0.8}));};
-    if(b.cover)loader.load(b.cover,setCover,undefined,()=>setCover(coverTexture(b)));else setCover(coverTexture(b));}
-  lookAtBook(b);showCard(b);}
-function mm(v){return Math.round(v)+' mm';}
-function link(href,text){const a=document.createElement('a');a.href=href;a.target='_blank';a.rel='noopener';a.textContent=text;return a;}
-let cardBook=null;
-function showCard(b){cardBook=b;
-  $('cTitle').textContent=b.title;$('cOrig').textContent=b.original_title||'';$('cOrig').hidden=!b.original_title;
-  $('cAuthor').textContent=b.author;$('cYear').textContent=b.year_text||'—';$('cLang').textContent=langName(b.language);
-  $('cGenre').textContent=genreName(b.genre)+(b.genre_text?' ('+b.genre_text+')':'');$('cSales').textContent=b.sales_text;
-  $('cH').textContent=mm(b.h)+(b.hwEstimated?' *':'');$('cW').textContent=mm(b.w)+(b.hwEstimated?' *':'');
-  $('cT').textContent=mm(b.t)+(b.tEstimated||b.dims_method==='pages_estimate'?' *':'');
-  const notes=[];if(b.hwEstimated)notes.push(T('estDefault'));
-  if(b.dims_method==='pages_estimate')notes.push(T('estThick'));else if(b.tEstimated)notes.push(T('noThick'));
-  $('cNote').textContent=notes.map(n=>'* '+n).join(' ');
-  const src=$('cSrc');src.innerHTML='';src.append(link(b.list_source,T('listSrc')));
-  if(b.edition_source)src.append(link(b.edition_source,T('edSrc')));
-  if(b.cover)src.append(document.createTextNode(T('coverSrc')));
-  const note=document.createElement('span');note.textContent=T('genreNote');src.append(note);
-  $('card').hidden=false;}
-function hideCard(){$('card').hidden=true;cardBook=null;if(selected)selected.userData.pull=0;}
-$('closeCard').onclick=hideCard;
+function updateRange(){const ys=books.map(b=>b.year).filter(y=>y!=null);const el=$('year');if(!ys.length)return;
+  el.min=Math.min(...ys);el.max=Math.max(...ys);el.value=el.min;$('yearOut').textContent=el.min;}
+$('year').oninput=e=>{const y=Number(e.target.value);$('yearOut').textContent=y;const i=books.findIndex(b=>b.year!=null&&b.year>=y);
+  const el=$('shelf').children[i<0?books.length-1:i];if(el){const sh=$('shelf');sh.scrollLeft=el.offsetLeft-40;}};
 
-/* ---------- Controls & language ---------- */
-function fillGenreFilter(){const gf=$('genreFilter'),cur=gf.value||'*';gf.innerHTML='';
-  const counts={};DATA.books.forEach(b=>b.genre_tags.forEach(t=>counts[t]=(counts[t]||0)+1));
-  const all=document.createElement('option');all.value='*';all.textContent=T('allGenres')+' ('+DATA.books.length+')';gf.appendChild(all);
-  Object.keys(DATA.genres).filter(k=>counts[k]).sort((a,b)=>counts[b]-counts[a]).forEach(k=>{const o=document.createElement('option');o.value=k;o.textContent=genreName(k)+' ('+counts[k]+')';gf.appendChild(o);});
-  gf.value=cur;}
-function applyLang(){document.documentElement.lang=lang;document.title=T('title');$('lang').textContent=lang==='uz'?'EN':'UZ';
+function row(dl,k,v,cls){const dt=document.createElement('dt');dt.textContent=T(k);const dd=document.createElement('dd');dd.textContent=v;if(cls)dd.className=cls;dl.append(dt,dd);}
+function a(href,txt){const x=document.createElement('a');x.href=href;x.target='_blank';x.rel='noopener';x.textContent=txt;return x;}
+function showDetail(b){const d=$('detail');d.innerHTML='';
+  if(!b){const p=document.createElement('p');p.className='empty';p.textContent=books.length?T('pick'):T('none');d.appendChild(p);return;}
+  const h=document.createElement('h2');h.textContent=b.title;
+  const m=document.createElement('div');m.className='meta';m.textContent=b.author+(b.original_title?' · '+b.original_title:'');
+  const dl=document.createElement('dl');
+  row(dl,'year',b.year_text||'—','num');row(dl,'language',langName(b.language));
+  row(dl,'genre',genreName(b.genre)+(b.genre_text?' ('+b.genre_text+')':''));row(dl,'sales',b.sales_text);
+  const hwEst=!(b.height_mm&&b.width_mm),tEst=!b.thickness_mm||b.dims_method==='pages_estimate';
+  row(dl,'size',`${b.height_mm||DEF.h}${hwEst?'*':''} × ${b.width_mm||DEF.w}${hwEst?'*':''} × ${b.thickness_mm||DEF.t}${tEst?'*':''} mm`,'num');
+  if(b.pages)row(dl,'pages',String(b.pages),'num');
+  const src=document.createElement('div');src.className='src';
+  src.append(a(b.list_source,T('listSrc')));if(b.edition_source)src.append(a(b.edition_source,T('olSrc')));
+  if(b.cover){const s=document.createElement('span');s.textContent=T('cover');src.append(s);}
+  const gn=document.createElement('span');gn.textContent=T('genreNote');src.append(gn);
+  const notes=[];if(b.dims_rejected)notes.push(T('rej'));if(hwEst)notes.push(T('estHW'));if(b.dims_method==='pages_estimate')notes.push(T('estT'));else if(!b.thickness_mm)notes.push(T('noT'));
+  if(notes.length){const n=document.createElement('div');n.className='note';n.textContent='* '+notes.join(' ');src.append(n);}
+  d.append(h,m,dl,src);}
+
+function fillFilters(){const gs=$('genre'),ls=$('language'),gv=gs.value||'*',lv=ls.value||'*';
+  const gc={},lc={};DATA.books.forEach(b=>{b.genre_tags.forEach(t=>gc[t]=(gc[t]||0)+1);lc[b.language]=(lc[b.language]||0)+1;});
+  gs.innerHTML='';ls.innerHTML='';
+  const opt=(sel,v,t)=>{const o=document.createElement('option');o.value=v;o.textContent=t;sel.appendChild(o);};
+  opt(gs,'*',T('allGenres'));Object.keys(gc).sort((x,y)=>gc[y]-gc[x]).forEach(k=>opt(gs,k,genreName(k)+' · '+gc[k]));
+  opt(ls,'*',T('allLangs'));Object.keys(lc).sort((x,y)=>lc[y]-lc[x]).forEach(k=>opt(ls,k,langName(k)+' · '+lc[k]));
+  gs.value=gv;ls.value=lv;}
+function applyLang(){document.documentElement.lang=lang;document.title=T('brand');$('lang').textContent=lang==='uz'?'EN':'UZ';
   document.querySelectorAll('[data-i18n]').forEach(el=>el.textContent=T(el.dataset.i18n));
   document.querySelectorAll('[data-i18n-html]').forEach(el=>el.innerHTML=T(el.dataset.i18nHtml));
-  if(DATA){fillGenreFilter();const gi=curGroup();build();if(groups.length>1){$('group').value=gi;goToGroup(gi,true);}}}
-$('lang').onclick=()=>{lang=lang==='uz'?'en':'uz';try{localStorage.setItem('kc-lang',lang);}catch(e){}applyLang();};
-$('mode').onchange=build;$('genreFilter').onchange=build;
-$('group').onchange=e=>goToGroup(Number(e.target.value));
-$('year').oninput=e=>{const y=Number(e.target.value);$('yearOut').textContent=y;const bs=groups[curGroup()]?.books||[];
-  const b=bs.find(x=>x.year!=null&&x.year>=y)||bs[bs.length-1];if(b)lookAtBook(b);};
-
-/* ---------- Loop ---------- */
-function resize(){renderer.setSize(innerWidth,innerHeight,false);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();}
-addEventListener('resize',resize);resize();
-const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
-const tmpQ=new THREE.Quaternion(),turn=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),-Math.PI/2),dir=new THREE.Vector3();
-function frame(){const k=reduce?1:0.12;yaw+=(tYaw-yaw)*k;pitch+=(tPitch-pitch)*k;fov+=(tFov-fov)*k;
-  if(Math.abs(camera.fov-fov)>0.01){camera.fov=fov;camera.updateProjectionMatrix();}aim();
-  for(const m of bookMeshes){const u=m.userData;u.p+=(u.pull-u.p)*(reduce?1:0.14);
-    if(u.p>0.001||u.pull){dir.set(-Math.cos(u.ang),0,-Math.sin(u.ang));m.position.copy(u.home).addScaledVector(dir,u.p*0.42);m.position.y=u.home.y+u.p*0.05;
-      tmpQ.copy(u.homeQ).multiply(turn);m.quaternion.copy(u.homeQ).slerp(tmpQ,u.p);}
-    else if(u.p!==0){u.p=0;m.position.copy(u.home);m.quaternion.copy(u.homeQ);}}
-  renderer.render(scene,camera);requestAnimationFrame(frame);}
+  if(DATA){fillFilters();const keep=openIdx;showDetail(keep>=0?books[keep]:null);}}
+$('lang').onclick=()=>{lang=lang==='uz'?'en':'uz';try{localStorage.setItem('kj-lang',lang);}catch(e){}applyLang();};
+$('genre').onchange=render;$('language').onchange=render;
+let rt;addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{if(DATA&&Math.abs(scale()-S)>0.05){const k=openIdx;render();if(k>=0&&k<books.length)toggle(k);}else positionDecades();},200);});
 
 applyLang();
-const fonts=document.fonts?.load?Promise.all([document.fonts.load('600 20px Spectral'),document.fonts.load('500 14px "IBM Plex Mono"')]).catch(()=>{}):Promise.resolve();
-Promise.all([fetch('data/books.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.json();}),Promise.race([fonts,new Promise(r=>setTimeout(r,2500))])])
-  .then(([d])=>{DATA=d;fillGenreFilter();build();frame();})
-  .catch(err=>{console.error(err);showMsg(T('loadFail'));});
+fetch('data/books.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.json();})
+  .then(d=>{DATA=d;fillFilters();render();})
+  .catch(e=>{console.error(e);const m=$('msg');m.hidden=false;m.textContent=T('loadFail');});
 })();
 </script>
 </body>

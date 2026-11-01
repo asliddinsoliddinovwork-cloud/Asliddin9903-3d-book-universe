@@ -78,6 +78,29 @@ def genre_tags(text: str) -> list[str]:
     return tags or ["fiction"]
 
 
+def plausible_dims(h, w, t, pages=None) -> bool:
+    """Reject edition records that are clearly not a single printed book (audio boxes, box sets, typos)."""
+    if not (h and w and t):
+        return False
+    if abs(w - t) < 3:  # square block: audio box / box set
+        return False
+    if pages:  # ~0.1 mm per page even on thick paper, plus boards
+        return t <= pages * 0.1 + 12
+    return t < 0.6 * w
+
+
+def physical(e: dict) -> dict:
+    """Edition dims if plausible; otherwise fall back to a page-count thickness estimate."""
+    if e.get("dims_method") == "edition" and not plausible_dims(e.get("height_mm"), e.get("width_mm"), e.get("thickness_mm"), e.get("pages")):
+        pages = e.get("pages")
+        t = round(pages * 0.05 + 2) if pages and 8 <= pages <= 3000 else None
+        e = {k: v for k, v in e.items() if k not in ("height_mm", "width_mm", "thickness_mm", "dims_method")}
+        if t:
+            e |= {"thickness_mm": t, "dims_method": "pages_estimate"}
+        e["dims_rejected"] = True
+    return e
+
+
 def build() -> dict:
     enrichment = json.loads(ENRICH.read_text(encoding="utf-8")) if ENRICH.exists() else {}
     books = []
@@ -86,7 +109,7 @@ def build() -> dict:
             title, original = split_title(row["title"])
             book_id = slugify(f"{title}-{row['author']}")
             tags = genre_tags(row["genre"])
-            e = enrichment.get(book_id, {})
+            e = physical(dict(enrichment.get(book_id, {})))
             books.append({
                 "id": book_id,
                 "title": title,
@@ -106,6 +129,7 @@ def build() -> dict:
                 "width_mm": e.get("width_mm"),
                 "thickness_mm": e.get("thickness_mm"),
                 "dims_method": e.get("dims_method"),   # "edition" | "pages_estimate" | None
+                "dims_rejected": bool(e.get("dims_rejected")),  # edition dims failed plausibility check
                 "pages": e.get("pages"),
                 "cover": e.get("cover"),
                 "edition_source": e.get("edition_url") or e.get("work_url"),
