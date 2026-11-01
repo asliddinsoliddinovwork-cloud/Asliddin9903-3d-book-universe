@@ -5183,7 +5183,7 @@
    "title_latn": "Ҳәдис ҳәм Турмыс 14-15-том",
    "url": "https://hilolnashr.uz/shayx-kitoblari-uz/hadis-va-hayot-14-15-qoraqalpoq",
    "lang": "kaa",
-   "kind": "book",
+   "kind": "set",
    "series": {
     "key": "hadis-va-hayot",
     "number": 14
@@ -5218,7 +5218,7 @@
    "title_latn": "Ҳәдис ҳәм Турмыс 16-17-том",
    "url": "https://hilolnashr.uz/shayx-kitoblari-uz/hadis-va-hayot-16-17-qoraqalpoq",
    "lang": "kaa",
-   "kind": "book",
+   "kind": "set",
    "series": {
     "key": "hadis-va-hayot",
     "number": 16
@@ -7282,39 +7282,6 @@
    "description": "Шайх Муҳаммад Содиқ Муҳаммад Юсуф ҳазратларининг икки жилдлик «Яхшилик ва силаи раҳм» деб номланган китоблари. Мазкур асар буюк ватандошимиз, Мовароуннаҳр диёридан чиққан қадим уламолардан бири, ҳижрий 246 санада вафот этган Ҳусайн ибн Ҳасан Марвазий раҳматуллоҳи алайҳининг «Китабул бирри вас-сила» номли китобларининг шарҳланган таржимасидир. Ушбу нодир асар дийнимиздаги энг мўътабар ибодатлардан бири - яхшилик қилиш ва қариндош-уруғлик ришталарини бардавом қилиш, яъни силаи раҳм қилиш хақидадир."
   },
   {
-   "id": "product-4740",
-   "title": "Tafsiri Hilol to`liq to`plam AUDIO (MP3) USB-FLESH",
-   "title_latn": "Tafsiri Hilol to`liq to`plam AUDIO (MP3) USB-FLESH",
-   "url": "https://hilolnashr.uz/shayx-kitoblari-uz?product_id=4740",
-   "lang": "uz-latn",
-   "kind": "bundle",
-   "series": {
-    "key": "tafsiri-hilol",
-    "number": null
-   },
-   "author": null,
-   "translator": null,
-   "publisher": null,
-   "years": [],
-   "first_year": null,
-   "latest_year": null,
-   "year_text": null,
-   "pages": null,
-   "isbn": "9789943913066",
-   "weight_kg": 6.75,
-   "format": null,
-   "binding": null,
-   "binding_text": null,
-   "height_mm": null,
-   "width_mm": null,
-   "size_method": null,
-   "thickness_mm": null,
-   "thickness_method": null,
-   "cover": "covers/hilol/product-4740.png",
-   "ebook_url": null,
-   "description": "Tafsiri Hilol to`liq to`plam AUDIO (MP3) USB-FLESH Тавсия ёзиш Исмингиз: Тавсиянгиз: Изоҳ: HTML is not translated! Баҳо бериш: Ёмон Яхши Давом этиш Tafsiri Hilol to`liq to`plam AUDIO (MP3) USB-FLESH - Тавсия ёзиш 107 000 сўм <div"
-  },
-  {
    "id": "vasatiya-put-jizni",
    "title": "Васатыя – путь жизни",
    "title_latn": "Васатыя – путь жизни",
@@ -7680,7 +7647,7 @@
    "title_latn": "Shayx hazratlarining kitoblari (104 ta kitob)",
    "url": "https://hilolnashr.uz/shayx-kitoblari-uz/shayh-hazratlarining-kitoblari",
    "lang": "uz-cyrl",
-   "kind": "book",
+   "kind": "set",
    "series": null,
    "author": "Шайх Муҳаммад Содиқ Муҳаммад Юсуф",
    "translator": null,
@@ -7710,7 +7677,7 @@
    "title_latn": "Тафсир Хилал 1-10-й том",
    "url": "https://hilolnashr.uz/shayx-kitoblari-uz/tafsir-xilal-1-10",
    "lang": "ru",
-   "kind": "book",
+   "kind": "set",
    "series": {
     "key": "tafsiri-hilol",
     "number": 1

@@ -90,9 +90,11 @@ def detect_series(title: str) -> dict | None:
 
 def detect_kind(title: str, url: str) -> str:
     t = title.lower()
+    if re.search(r"audio|mp3|usb|флеш|диск|disk", t):
+        return "audio"
     if "product_id=" in url or "чегирма" in t:
         return "bundle"
-    if re.search(r"қутида|qutida|тўплами|to‘plami|жилдлик|\d\s*,\s*\d\s*,\s*\d|\b[2-9]\s*жилд\b", t):
+    if re.search(r"қутида|qutida|тўплами|to‘plami|жилдлик|\d\s*,\s*\d\s*,\s*\d|\b[2-9]\s*жилд\b|\d+\s*та китоб|\d+\s*[-–]\s*\d+\s*-?й?\s*том", t):
         return "set"
     return "book"
 
@@ -147,6 +149,8 @@ def build() -> dict:
         # every product on the author's page is included; by_shayx only records whether his name is printed
         if p.get("error") or p["slug"] in seen:
             continue
+        if detect_kind(strip_quotes(p.get("title") or ""), p["url"]) == "audio":
+            continue  # audio products are not printed books
         seen.add(p["slug"])
         title = strip_quotes(p.get("title") or p.get("listing_title") or "")
         lang = detect_lang(title, p["url"])

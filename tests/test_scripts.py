@@ -65,6 +65,7 @@ def test_language_series_kind():
     assert detect_kind("Тасаввуфга оид 3 та китоб – 10% чегирмада", "https://x?product_id=1") == "bundle"
     assert detect_kind("Кифоя 1,2,3 - жузлари", "https://x/kifoya") == "set"
     assert detect_kind("Иймон", "https://x/iymon") == "book"
+    assert detect_kind("Tafsiri Hilol AUDIO (MP3) USB-FLESH", "https://x/th-audio") == "audio"
 
 
 def test_to_latin():
